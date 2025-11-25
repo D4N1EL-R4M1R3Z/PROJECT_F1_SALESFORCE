@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Piloto__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>relación entre los objetos de Escudería y Piloto, de manera que 
+dentro de una escudería pueda haber varios pilotos</description>
+    <label>Piloto</label>
+    <referenceTo>Piloto__c</referenceTo>
+    <relationshipLabel>Resultados Carreras</relationshipLabel>
+    <relationshipName>Resultados_Carreras</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Circuito</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Circuitos</value>
+    </caseValues>
+    <gender>Feminine</gender>
+    <layouts>
+        <layout>Circuito Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <quickActions>
+        <label><!-- Crear Circuito --></label>
+        <name>Crear_Circuito</name>
+    </quickActions>
+</CustomObjectTranslation>
