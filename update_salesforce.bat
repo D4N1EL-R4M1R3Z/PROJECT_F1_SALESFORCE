@@ -22,6 +22,7 @@ echo Subiendo cambios a GitHub de Daniel...
 git push origin main
 
 echo ============================================
-echo   ¡Proceso completado con éxito.....!
+echo   Â¡Proceso completado con Ã©xito.....!
 echo ============================================
 pause
+

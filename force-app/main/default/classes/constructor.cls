@@ -1,7 +1,8 @@
 public with sharing class  constructor {
 
     @AuraEnabled
-    public static List<Map<String, Object>> givenConstructors() {
+    public static List<Map<String, Object>> givenConstructors() 
+    {
         List<Map<String, Object>> result = new List<Map<String, Object>>();
 
         try {
@@ -40,7 +41,8 @@ public with sharing class  constructor {
     }
 
     @AuraEnabled
-    public static void saveConstructors() {
+    public static void saveConstructors() 
+    {
         List<Map<String,Object>> constructorTable = givenConstructors();
         List<constructor__c> constructorToInsert = new List<constructor__c>();
 
