@@ -6,13 +6,14 @@ public with sharing class circuit {
         try {
             Http http = new Http();
             HttpRequest req = new HttpRequest();
-            req.setEndpoint('callout:pilotos2/ergast/f1/circuits.json'); // Ajusta el Named Credential
+            req.setEndpoint('callout:pilotos2/ergast/f1/circuits.json'); // se coloca la direccion Url de la api en forma de callout
             req.setMethod('GET');
 
             HttpResponse res = http.send(req);
 
             if (res.getStatusCode() == 200) {
-                // Deserializamos la respuesta
+                // Deserializamos la respuesta usando como modelado deserializeUntyped el cual reliza la 
+                //extracion en la misma pagina sin necesida de asociado dentro de las classes
                 Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
                 Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
                 Map<String, Object> circuitTable = (Map<String, Object>) mrData.get('CircuitTable');
@@ -45,35 +46,35 @@ public with sharing class circuit {
 
         return result;
     }
+        // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+            @AuraEnabled
+            public static void saveCircuits() {
+                List<Map<String, Object>> circuitsData = giveCircuits();
+                List<circuit__c> circuitsToInsert = new List<circuit__c>();
 
-    @AuraEnabled
-    public static void saveCircuits() {
-        List<Map<String, Object>> circuitsData = giveCircuits();
-        List<circuit__c> circuitsToInsert = new List<circuit__c>();
+                for (Map<String, Object> ds : circuitsData) {
+                    circuit__c c = new circuit__c();
+                    c.Name = (String) ds.get('circuitName');
+                    //c.circuitName__c = (String) ds.get('circuitName'); 
+                    c.circuitId__c = (String) ds.get('circuitId');
+                    c.url__c = (String) ds.get('url');
 
-        for (Map<String, Object> ds : circuitsData) {
-            circuit__c c = new circuit__c();
-            c.Name = (String) ds.get('circuitName');
-            //c.circuitName__c = (String) ds.get('circuitName'); 
-            c.circuitId__c = (String) ds.get('circuitId');
-            c.url__c = (String) ds.get('url');
+                    if (ds.get('lat') != null) {
+                        c.Location__Latitude__s = Decimal.valueOf(String.valueOf(ds.get('lat')));
+                    }
+                    if (ds.get('long') != null) {
+                        c.Location__Longitude__s = Decimal.valueOf(String.valueOf(ds.get('long')));
+                    }
 
-            if (ds.get('lat') != null) {
-                c.Location__Latitude__s = Decimal.valueOf(String.valueOf(ds.get('lat')));
+                    c.locality__c = (String) ds.get('locality');
+                    c.country__c = (String) ds.get('country');
+
+                    circuitsToInsert.add(c);
+                }
+                    // enn este apartado utilizamos un debug para mirar cuando datos inserto dentro de salesforce usando Developer Consol
+                if (!circuitsToInsert.isEmpty()) {
+                    Database.insert(circuitsToInsert, false);
+                    System.debug('Registros insertados: ' + circuitsToInsert.size());
+                }
             }
-            if (ds.get('long') != null) {
-                c.Location__Longitude__s = Decimal.valueOf(String.valueOf(ds.get('long')));
-            }
-
-            c.locality__c = (String) ds.get('locality');
-            c.country__c = (String) ds.get('country');
-
-            circuitsToInsert.add(c);
-        }
-
-        if (!circuitsToInsert.isEmpty()) {
-            Database.insert(circuitsToInsert, false);
-            System.debug('Registros insertados: ' + circuitsToInsert.size());
-        }
-    }
 }

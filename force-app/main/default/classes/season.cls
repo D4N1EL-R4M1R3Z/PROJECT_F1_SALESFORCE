@@ -10,29 +10,21 @@ public with sharing class season {
             req.setMethod('GET');
 
             HttpResponse res = http.send(req);
-
+                // Deserializamos la respuesta usando como modelado deserializeUntyped el cual reliza la 
+                //extracion en la misma pagina sin necesida de asociado dentro de las classes
             if (res.getStatusCode() == 200) {
-                // Deserializamos la respuesta
+         
                 Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
                 Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
                 Map<String, Object> SeasonTable = (Map<String, Object>) mrData.get('SeasonTable');
                 List<Object> SeasonsList = (List<Object>) SeasonTable.get('Seasons');
 
                 for (Object obj : SeasonsList) {
-                    Map<String, Object> Seasons = (Map<String, Object>) obj;
-                    //Map<String, Object> location = (Map<String, Object>) circuit.get('Location');
+                    Map<String, Object> Seasons = (Map<String, Object>) obj;    
 
                     Map<String, Object> row = new Map<String, Object>();
                     row.put('season', Seasons.get('season'));
-                    //row.put('circuitName', circuit.get('circuitName'));
                     row.put('url', Seasons.get('url'));
-
-                   /* if (location != null) {
-                        row.put('lat', location.get('lat'));
-                        row.put('long', location.get('long'));
-                        row.put('locality', location.get('locality'));
-                        row.put('country', location.get('country'));
-                    }*/
 
                     result.add(row);
                 }
@@ -46,34 +38,24 @@ public with sharing class season {
         return result;
     }
 
-   @AuraEnabled
-    public static void saveSeasion() {
-        List<Map<String, Object>> seasonData = giveSeason();
-        List<season__c> seasionToInsert = new List<season__c>();
+        // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
 
-        for (Map<String, Object> ls : seasonData) {
-            season__c s = new season__c();
-            s.url__c = (String) ls.get('url');
-            //c.circuitName__c = (String) ds.get('circuitName'); 
-            s.season__c = Integer.valueOf((String) ls.get('season'));
-            //c.url__c = (String) ds.get('url');
 
-           /* if (ds.get('lat') != null) {
-                c.Location__Latitude__s = Decimal.valueOf(String.valueOf(ds.get('lat')));
-            }
-            if (ds.get('long') != null) {
-                c.Location__Longitude__s = Decimal.valueOf(String.valueOf(ds.get('long')));
-            }
+            @AuraEnabled
+                public static void saveSeasion() {
+                    List<Map<String, Object>> seasonData = giveSeason();
+                    List<season__c> seasionToInsert = new List<season__c>();
 
-            c.locality__c = (String) ds.get('locality');
-            c.country__c = (String) ds.get('country');*/
+                    for (Map<String, Object> ls : seasonData) {
+                        season__c s = new season__c();
+                        s.url__c = (String) ls.get('url');
+                        s.season__c = Integer.valueOf((String) ls.get('season'));
+                        seasionToInsert.add(s);
+                    }
 
-            seasionToInsert.add(s);
-        }
-
-        if (!seasionToInsert.isEmpty()) {
-            Database.insert(seasionToInsert, false);
-            System.debug('Registros insertados: ' + seasionToInsert.size());
-        }
-    }
+                    if (!seasionToInsert.isEmpty()) {
+                        Database.insert(seasionToInsert, false);
+                        System.debug('Registros insertados: ' + seasionToInsert.size());
+                    }
+                }
 }

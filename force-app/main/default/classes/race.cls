@@ -15,6 +15,9 @@ public with sharing class race {
 
             HttpResponse res = http.send(req);
 
+                // Deserializamos la respuesta comenzando con la estructura que mencina la Api
+
+
             if (res.getStatusCode() == 200) {
                 Map<String, Object> jsonMap   = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
                 Map<String, Object> mrData    = (Map<String, Object>) jsonMap.get('MRData');
@@ -27,10 +30,10 @@ public with sharing class race {
                     Map<String, Object> row = new Map<String, Object>();
                     row.put('raceName', race.get('raceName'));
                     row.put('url',      race.get('url'));
-                    row.put('date',     race.get('date')); // "2025-03-16"
-                    row.put('time',     race.get('time')); // "04:00:00Z"
+                    row.put('date',     race.get('date')); 
+                    row.put('time',     race.get('time')); 
 
-                    // Prácticas y Qualifying
+                    // mencionamos en donde se obtiene los datos de Prácticas y Qualifying
                     Map<String, Object> fp = (Map<String, Object>) race.get('FirstPractice');
                     Map<String, Object> sp = (Map<String, Object>) race.get('SecondPractice');
                     Map<String, Object> tp = (Map<String, Object>) race.get('ThirdPractice');
@@ -65,10 +68,8 @@ public with sharing class race {
         return result;
     }
 
-    /**
-     * Guarda las carreras en Salesforce.
-     */
-    
+        // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+
         
                 @AuraEnabled
                 public static void saveRace() {
@@ -80,21 +81,10 @@ public with sharing class race {
                         r.Name   = (String) ds.get('raceName');
                         r.url__c = (String) ds.get('url');
 
-                        // Fecha (campo tipo Date)
-                        String dateStr = (String) ds.get('date'); // "2025-03-16"
+                        String dateStr = (String) ds.get('date'); 
                         if (!String.isBlank(dateStr)) {
                             r.date__c = Date.valueOf(dateStr);
                         }
-
-                        // Hora (campo tipo Time)
-                        /*String timeStr = (String) ds.get('time'); // "04:00:00Z" o "04:00:00.123Z"
-                        Time apiTime = TimeUtil.parseApiTimeToTime(timeStr);
-                        if (apiTime != null) {
-                            r.time__c = apiTime;
-                        } else {
-                            // opcional: log o manejo si viene en blanco/invalid
-                            System.debug('Hora inválida para registro: ' + timeStr);*
-                        }*/
 
                         raceToInsert.add(r);
                     }
