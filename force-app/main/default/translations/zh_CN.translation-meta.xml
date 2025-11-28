@@ -40,6 +40,10 @@
         <label><!-- tt_ResetPasswordWarning --></label>
         <name>trlhdtips__tt_ResetPasswordWarning</name>
     </customLabels>
+    <customTabs>
+        <label><!-- Circuito --></label>
+        <name>Circuito</name>
+    </customTabs>
     <flowDefinitions>
         <flows>
             <choices>

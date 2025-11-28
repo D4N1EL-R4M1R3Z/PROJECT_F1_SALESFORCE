@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label><!-- Constructor --></label>
-    <name>Constructor__c</name>
-    <relationshipLabel><!-- Results --></relationshipLabel>
+    <label><!-- constructor --></label>
+    <name>constructor__c</name>
 </CustomFieldTranslation>

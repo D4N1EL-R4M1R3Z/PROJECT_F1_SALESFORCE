@@ -156,7 +156,7 @@
     <gender>Feminine</gender>
     <label>Race</label>
     <nameField>
-        <label>Race Name</label>
+        <label>RaceNameId</label>
         <type>Text</type>
     </nameField>
     <pluralLabel>Races</pluralLabel>

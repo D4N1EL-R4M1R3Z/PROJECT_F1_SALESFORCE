@@ -27,5 +27,6 @@
     <tabs>driver__c</tabs>
     <tabs>result__c</tabs>
     <tabs>Team_Fantasy__c</tabs>
+    <tabs>race__c</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

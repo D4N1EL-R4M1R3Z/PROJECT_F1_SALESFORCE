@@ -65,7 +65,6 @@ public with sharing class circuit {
                     if (ds.get('long') != null) {
                         c.Location__Longitude__s = Decimal.valueOf(String.valueOf(ds.get('long')));
                     }
-
                     c.locality__c = (String) ds.get('locality');
                     c.country__c = (String) ds.get('country');
 

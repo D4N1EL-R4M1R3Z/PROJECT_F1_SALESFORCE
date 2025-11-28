@@ -197,10 +197,6 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>constructorstandingBatch</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>constructorstandingWrapper</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -217,10 +213,6 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>driverstadingBatch</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>driverstanding</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -233,15 +225,7 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>lapBatch</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>pitstop</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>pitstopBatch</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -281,15 +265,7 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>sprintBatch</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>status</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>statusBatch</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <custom>true</custom>
@@ -455,16 +431,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Resultado_Carrera__c.Circuito__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Resultado_Carrera__c.Piloto__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>circuit__c.Location__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -510,11 +476,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>constructorstanding__c.Constructor__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>constructorstanding__c.constructorId__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -556,6 +517,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>constructorstanding__c.wins__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>driver__c.Constructor__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -695,11 +661,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>pitstop__c.season__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>pitstop__c.stop__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -749,6 +710,11 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>race__c.raceNameId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>race__c.round__c</field>
         <readable>false</readable>
@@ -770,7 +736,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>result__c.Constructor__c</field>
+        <field>result__c.constructor__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1257,6 +1223,10 @@
         <layout>status__c-Status Layout</layout>
     </layoutAssignments>
     <tabVisibilities>
+        <tab>Circuito</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
         <tab>Team_Fantasy__c</tab>
         <visibility>DefaultOn</visibility>
     </tabVisibilities>
@@ -1270,6 +1240,10 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>driver__c</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>race__c</tab>
         <visibility>DefaultOn</visibility>
     </tabVisibilities>
     <tabVisibilities>

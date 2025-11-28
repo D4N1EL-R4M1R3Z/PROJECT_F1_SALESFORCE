@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>Driver_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>driver__c</pageOrSobjectType>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>Driver_Record_Page</content>
+        <formFactor>Small</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>driver__c</pageOrSobjectType>
+    </actionOverrides>
     <brand>
         <headerColor>#374B6B</headerColor>
         <logo>Captura_de_pantalla_28102025_155738</logo>
@@ -21,6 +39,7 @@
     <tabs>driver__c</tabs>
     <tabs>result__c</tabs>
     <tabs>Team_Fantasy__c</tabs>
+    <tabs>race__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>F_rmula_1_Liga_Fantasy_UtilityBar</utilityBar>
 </CustomApplication>
