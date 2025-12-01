@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label><!-- Driver --></label>
-    <name>Driver__c</name>
-    <relationshipLabel><!-- Results --></relationshipLabel>
+    <label><!-- result_id --></label>
+    <name>result_id__c</name>
 </CustomFieldTranslation>

@@ -28,5 +28,6 @@
     <tabs>result__c</tabs>
     <tabs>Team_Fantasy__c</tabs>
     <tabs>race__c</tabs>
+    <tabs>lap__c</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

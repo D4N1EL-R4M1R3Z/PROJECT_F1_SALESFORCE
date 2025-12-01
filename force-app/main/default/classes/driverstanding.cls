@@ -57,7 +57,7 @@ public with sharing class driverstanding {
                     for (Map<String,Object> ds : standings) {
                         driverstanding__c d = new driverstanding__c();
                         d.Name = (String) ds.get('givenName') + ' ' + (String) ds.get('familyName');
-                        d.driverId__c = (String) ds.get('driverId');
+                       // d.driverId__c = (String) ds.get('driverId');
                         d.givenName__c = (String) ds.get('givenName');
                         d.familyName__c = (String) ds.get('familyName');
                         d.dateOfBirth__c = ds.get('dateOfBirth') != null ? Date.valueOf((String) ds.get('dateOfBirth')) : null;

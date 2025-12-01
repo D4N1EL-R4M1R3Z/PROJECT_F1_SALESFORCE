@@ -20,12 +20,17 @@ global class constructorstandingBatch implements Database.Batchable<SObject>, Da
                         constStad.url__c = (String) cons.get('url'); 
                         constStad.Name = (String) cons.get('name');
                         constStad.nationality__c = (String) cons.get('nationality');
-                        constStad.positionText__c = (Integer) cons.get('positionText');
-                        constStad.position__c = (Integer) cons.get('position');
-                        constStad.points__c = (Integer) cons.get('points');
+                        constStad.positionText__c = cons.get('positionText') != null ? Integer.valueOf(String.valueOf(cons.get('positionText'))) : null;
+                        constStad.position__c = cons.get('position') != null ? Integer.valueOf(String.valueOf(cons.get('position'))) : null;    
+                        constStad.points__c = cons.get('points') != null ? Integer.valueOf(String.valueOf(cons.get('points'))) : null;
+                        //constStad.positionText__c = (Integer) cons.get('positionText');
+                        //constStad.position__c = (Integer) cons.get('position');
+                        //constStad.points__c = (Integer) cons.get('points');
                         constStad.wins__c = (String) cons.get('wins');
-                        constStad.season__c = (Integer) cons.get('season');
-                        constStad.round__c = (Integer) cons.get('round');
+                        constStad.season__c = cons.get('season') != null ? Integer.valueOf(String.valueOf(cons.get('season'))) : null;    
+                         constStad.round__c = cons.get('round') != null ? Integer.valueOf(String.valueOf(cons.get('round'))) : null;
+                        //constStad.season__c = (Integer) cons.get('season');
+                        //constStad.round__c = (Integer) cons.get('round');
                         standingsToUpsert.add(constStad);
                     }
 

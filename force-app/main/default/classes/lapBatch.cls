@@ -11,34 +11,45 @@ global class lapBatch implements Database.Batchable<SObject>, Database.AllowsCal
             List<Map<String, Object>> lapData = lap.giveLap();
             System.debug('Cantidad de laps obtenidos: ' + lapData.size());
 
-            List<lap__c> lapsToUpsert = new List<lap__c>();
+             List<lap__c> lapToInsert = new List<lap__c>();
+                List<Circuit__c> circuitsToUpsert = new List<Circuit__c>();
+
 
             for (Map<String, Object> ls : lapData) {
-                lap__c l = new lap__c();
+                // Crear circuito para upsert
+                        Circuit__c circuit = new Circuit__c();
+                        circuit.circuitId__c = (String) ls.get('circuitId'); // External Id
+                        circuit.Name = (String) ls.get('Name');
+                        circuit.url__c = (String) ls.get('circuitUrl');
+                        circuitsToUpsert.add(circuit);
 
-                // Nombre: si no viene en el API, usar driverId + lapNumber
-                String driverId = (String) ls.get('driverId');
-                String lapNumber = String.valueOf(ls.get('lapNumber'));
-                l.Name = (String) ls.get('Name') != null ? (String) ls.get('Name') : driverId + ' - Lap ' + lapNumber;
+                        // Crear lap
+                        lap__c l = new lap__c();
+                        l.Name = 'Lap ' + (String) ls.get('lapNumber');
+                        l.position__c = Integer.valueOf((String) ls.get('position'));
+                        String timeVal = (String) ls.get('time');
+                                l.time__c = parseQuTime(timeVal);
 
-                // position
-                Object posObj = ls.get('position');
-                if (posObj != null) {
-                    try {
-                        l.position__c = Integer.valueOf(String.valueOf(posObj));
-                    } catch (Exception e) {
-                        System.debug('Valor inválido para position: ' + posObj);
-                    }
-                }
+                        // Relacionar con circuito por External Id
+                        String circuitId = (String) ls.get('circuitId');
+                        if (String.isNotBlank(circuitId)) {
+                            l.Circuit__r = new Circuit__c(circuitId__c = circuitId);
+                        }
 
-                // time
-                String timeVal = (String) ls.get('time');
-                l.time__c = parseQuTime(timeVal);
-
-                lapsToUpsert.add(l);
+                        lapToInsert.add(l);
             }
 
-            if (!lapsToUpsert.isEmpty()) {
+
+                                // Upsert circuitos primero
+                        if (!circuitsToUpsert.isEmpty()) {
+                            Database.upsert(circuitsToUpsert, Circuit__c.Fields.circuitId__c, false);
+                        }
+
+                        // Insert laps
+                        if (!lapToInsert.isEmpty()) {
+                            Database.insert(lapToInsert, false);
+                        }
+           /* if (!lapsToUpsert.isEmpty()) {
                 // Upsert usando Name (o mejor un campo External Id si lo tienes)
                 Database.UpsertResult[] results = Database.upsert(lapsToUpsert, lap__c.Fields.Name, false);
 
@@ -55,7 +66,9 @@ global class lapBatch implements Database.Batchable<SObject>, Database.AllowsCal
                 System.debug('Laps procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
             } else {
                 System.debug('No hay laps para procesar.');
-            }
+            }*/
+
+            
 
         } catch (Exception e) {
             System.debug('Error en batch: ' + e.getMessage());

@@ -197,6 +197,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>constructorstandingBatch</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>constructorstandingWrapper</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -213,6 +217,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>driverstadingBatch</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>driverstanding</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -222,6 +230,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>lap</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>lapBatch</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -626,6 +638,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>lap__c.lap_id__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>lap__c.number__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -736,12 +753,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>result__c.constructor__c</field>
+        <field>result__c.Constructor__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>result__c.driver__c</field>
+        <field>result__c.Driver__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -773,6 +790,11 @@
         <editable>false</editable>
         <field>result__c.position__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>result__c.result_id__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1380,6 +1402,10 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>driver__c</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>lap__c</tab>
         <visibility>DefaultOn</visibility>
     </tabVisibilities>
     <tabVisibilities>

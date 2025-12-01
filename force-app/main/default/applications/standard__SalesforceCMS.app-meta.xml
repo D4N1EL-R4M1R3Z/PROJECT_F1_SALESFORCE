@@ -17,6 +17,7 @@
     <tabs>result__c</tabs>
     <tabs>Team_Fantasy__c</tabs>
     <tabs>race__c</tabs>
+    <tabs>lap__c</tabs>
     <uiType>Lightning</uiType>
     <workspaceConfig>
         <mappings>
@@ -30,6 +31,9 @@
         </mappings>
         <mappings>
             <tab>driver__c</tab>
+        </mappings>
+        <mappings>
+            <tab>lap__c</tab>
         </mappings>
         <mappings>
             <tab>race__c</tab>

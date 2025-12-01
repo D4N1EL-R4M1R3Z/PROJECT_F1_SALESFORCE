@@ -156,9 +156,8 @@
     <gender>Feminine</gender>
     <label>Team Fantasy</label>
     <nameField>
-        <displayFormat>{0}</displayFormat>
         <label>Team Fantasy Name</label>
-        <type>AutoNumber</type>
+        <type>Text</type>
     </nameField>
     <pluralLabel>Teams Fantasy</pluralLabel>
     <searchLayouts></searchLayouts>

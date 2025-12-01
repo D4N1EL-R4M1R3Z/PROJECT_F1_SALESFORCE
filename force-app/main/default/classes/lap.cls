@@ -70,40 +70,67 @@ public with sharing class lap {
 
                     // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
 
-                    @AuraEnabled
-                    public static void saveLap() {
-                        List<Map<String, Object>> lapData = giveLap();
-                        List<lap__c> lapToInsert = new List<lap__c>();
 
-                        for (Map<String, Object> ls : lapData) {
-                            lap__c l = new lap__c();
-                            l.Name = (String) ls.get('Name');
-                            l.position__c = Integer.valueOf((String) ls.get('position'));
-                            l.time__c = parseQuTime((String) ls.get('time__c'));
+@AuraEnabled
+public static void saveLap() {
+    List<Map<String, Object>> lapData = giveLap();
+    List<lap__c> lapToInsert = new List<lap__c>();
+    List<Circuit__c> circuitsToUpsert = new List<Circuit__c>();
 
-                            lapToInsert.add(l);
-                        }
+    for (Map<String, Object> ls : lapData) {
+        // Crear circuito para upsert
+        Circuit__c circuit = new Circuit__c();
+        circuit.circuitId__c = (String) ls.get('circuitId'); // External Id
+        circuit.Name = (String) ls.get('Name');
+        circuit.url__c = (String) ls.get('circuitUrl');
+        circuitsToUpsert.add(circuit);
 
-                        if (!lapToInsert.isEmpty()) {
-                            Database.insert(lapToInsert, false);
-                            System.debug('Registros insertados: ' + lapToInsert.size());
-                        }
-                    }
+        // Crear lap
+        lap__c l = new lap__c();
+        l.Name = 'Lap ' + (String) ls.get('lapNumber');
+        l.position__c = Integer.valueOf((String) ls.get('position'));
+        String timeVal = (String) ls.get('time');
+                l.time__c = parseQuTime(timeVal);
 
-                    private static Time parseQuTime(String val) {
-                        if (String.isBlank(val)) return null;
+        // Relacionar con circuito por External Id
+        String circuitId = (String) ls.get('circuitId');
+        if (String.isNotBlank(circuitId)) {
+            l.Circuit__r = new Circuit__c(circuitId__c = circuitId);
+        }
 
-                       // Formato esperado: para la conversion de time
-                        List<String> minAndRest = val.split(':');
-                        if (minAndRest.size() != 2) return null;
+        lapToInsert.add(l);
+    }
 
-                        Integer minutes = Integer.valueOf(minAndRest[0]);
+    // Upsert circuitos primero
+    if (!circuitsToUpsert.isEmpty()) {
+        Database.upsert(circuitsToUpsert, Circuit__c.Fields.circuitId__c, false);
+    }
 
-                        List<String> secAndMs = minAndRest[1].split('\\.');
-                        Integer seconds = Integer.valueOf(secAndMs[0]);
-                        Integer millis = 0;
+    // Insert laps
+    if (!lapToInsert.isEmpty()) {
+        Database.insert(lapToInsert, false);
+    }
+}
 
-                        return Time.newInstance(0, minutes, seconds, millis);
-                    }
+        private static Time parseQuTime(String val) {
+                if (String.isBlank(val)) return null;
+
+                try {
+                    List<String> minAndRest = val.split(':');
+                    if (minAndRest.size() != 2) return null;
+
+                    Integer minutes = Integer.valueOf(minAndRest[0]);
+
+                    List<String> secAndMs = minAndRest[1].split('\\.');
+                    Integer seconds = Integer.valueOf(secAndMs[0]);
+                    Integer millis = 0; // Salesforce Time no soporta milisegundos
+
+                    return Time.newInstance(0, minutes, seconds, millis);
+                } catch (Exception e) {
+                    System.debug('Formato inválido para time: ' + val);
+                    return null;
+                }
+            }
+        
 
 }

@@ -1,7 +1,9 @@
-public with sharing class result {
+public with sharing class result 
+{
 
     @AuraEnabled(cacheable=true)
-    public static List<Map<String, Object>> giveResults() {
+    public static List<Map<String, Object>> giveResults() 
+    {
         List<Map<String, Object>> result = new List<Map<String, Object>>();
 
         try {
@@ -13,13 +15,15 @@ public with sharing class result {
             HttpResponse res = http.send(req);
             
             
-if (res.getStatusCode() == 200) {
+if (res.getStatusCode() == 200) 
+{
     Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
     Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
     Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
     List<Object> racesList = (List<Object>) raceTable.get('Races');
 
-    for (Object raceObj : racesList) {
+    for (Object raceObj : racesList) 
+    {
         Map<String, Object> raceMap = (Map<String, Object>) raceObj;
 
         // Datos del Race
@@ -38,10 +42,11 @@ if (res.getStatusCode() == 200) {
         // Solo extraemos Results[]
         List<Object> resultsList = (List<Object>) raceMap.get('Results');
         if (resultsList != null) {
-            for (Object resObj : resultsList) {
+            for (Object resObj : resultsList) 
+            {
                 Map<String, Object> resMap = (Map<String, Object>) resObj;
 
-                // ¡IMPORTANTE!: crear un row NUEVO por cada resultado
+                //crear un row NUEVO por cada resultado
                 Map<String, Object> row = new Map<String, Object>();
 
                 // Contexto de la carrera
@@ -65,7 +70,8 @@ if (res.getStatusCode() == 200) {
 
                 // Driver
                 Map<String, Object> driverMap = (Map<String, Object>) resMap.get('Driver');
-                if (driverMap != null) {
+                if (driverMap != null) 
+                {
                     row.put('driverId',        driverMap.get('driverId'));          // clave correcta
                     row.put('permanentNumber', driverMap.get('permanentNumber'));
                     row.put('code',            driverMap.get('code'));
@@ -78,7 +84,8 @@ if (res.getStatusCode() == 200) {
 
                 // Constructor
                 Map<String, Object> constructorMap = (Map<String, Object>) resMap.get('Constructor');
-                if (constructorMap != null) { // condición corregida
+                if (constructorMap != null) 
+                { // condición corregida
                     row.put('constructorId',   constructorMap.get('constructorId')); // clave correcta
                     row.put('constructorName', constructorMap.get('name'));
                     row.put('constructorUrl',  constructorMap.get('url'));
@@ -92,61 +99,146 @@ if (res.getStatusCode() == 200) {
             }
         }
     }
-            } else {
+            } else 
+            {
                 System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
             }
 
                     
-        } catch (Exception e) {
+        } catch (Exception e) 
+        {
             System.debug('Excepción en giveResults: ' + e.getMessage());
         }
-
         return result;
     }
 
-   @AuraEnabled
-    public static void saveResults() {
-        List<Map<String, Object>> resultsData = giveResults();
-       List<result__c> resultsToInsert = new List<result__c>();
-            List<Constructor__c> constructorsToInsert = new List<Constructor__c>();
-            List<driver__c> driversToInsert = new List<driver__c>();
+   
+@AuraEnabled
+public static void saveResults() 
+{
+    List<Map<String, Object>> resultsData = giveResults();
+    if (resultsData.isEmpty()) 
+    {
+        System.debug(LoggingLevel.WARN, 'No hay datos para procesar.');
+        return;
+    }
 
-        for (Map<String, Object> ds : resultsData) {
-            result__c r = new result__c();
-            driver__c d = new driver__c();
+    List<result__c> resultsToInsert = new List<result__c>();
+    List<Constructor__c> constructorsToUpsert = new List<Constructor__c>();
+    List<Driver__c> driversToUpsert = new List<Driver__c>();
+
+    Set<String> driverIds = new Set<String>();
+    Set<String> constructorIds = new Set<String>();
+
+    // 1. Preparar datos
+    for (Map<String, Object> ds : resultsData) 
+    {
+        String driverId = ((String) ds.get('driverId')).trim().toLowerCase();
+        String constructorId = ((String) ds.get('constructorId')).trim().toLowerCase();
+
+        if (!String.isBlank(driverId)) driverIds.add(driverId);
+        if (!String.isBlank(constructorId)) constructorIds.add(constructorId);
+
+        // Driver
+        if (!String.isBlank(driverId)) {
+            Driver__c d = new Driver__c();
+            d.driverId__c = driverId; // External Id
+            d.Name = (String) ds.get('givenName') + ' ' + (String) ds.get('familyName');
+            d.nationality__c = (String) ds.get('nationality');
+            d.url__c = (String) ds.get('driverUrl');
+            driversToUpsert.add(d);
+        }
+
+        // Constructor
+        if (!String.isBlank(constructorId)) {
             Constructor__c c = new Constructor__c();
-            r.number__c        = toInteger(ds.get('number'));
-            r.position__c      = toInteger(ds.get('position'));
-            r.positionText__c  = (String) ds.get('positionText');
-            r.points__c        = toInteger(ds.get('points'));
-            r.grid__c          = toInteger(ds.get('grid'));
-            r.laps__c          = toInteger(ds.get('laps'));
-            r.status__c        = (String) ds.get('status');
-            r.driver__c      = (String) ds.get('driverId');
-            r.Name           = (String) ds.get('raceName');
-            r.constructor__c = (String) ds.get('constructorId');
-          
-
-
-
-            resultsToInsert.add(r);
-            constructorsToInsert.add(c);
-            driversToInsert.add(d);
+            c.constructorId__c = constructorId; // External Id
+            c.Name = (String) ds.get('constructorName');
+            c.url__c = (String) ds.get('constructorUrl');
+            c.nationality__c = (String) ds.get('constructorNat');
+            constructorsToUpsert.add(c);
         }
 
-        if (!resultsToInsert.isEmpty()) {
-            Database.insert(resultsToInsert, false);
-            System.debug('Registros insertados: ' + resultsToInsert.size());
+        // Result (sin Lookups aún)
+        result__c r = new result__c();
+        r.Name = (String) ds.get('raceName');
+        r.number__c = toInteger(ds.get('number'));
+        r.position__c = toInteger(ds.get('position'));
+        r.positionText__c = (String) ds.get('positionText');
+        r.points__c = toInteger(ds.get('points'));
+        r.grid__c = toInteger(ds.get('grid'));
+        r.laps__c = toInteger(ds.get('laps'));
+        r.status__c = (String) ds.get('status');
+        resultsToInsert.add(r);
+    }
+
+    // 2. Upsert Drivers y Constructors
+    if (!driversToUpsert.isEmpty()) {
+        Database.upsert(driversToUpsert, Driver__c.Fields.driverId__c, false);
+    }
+    if (!constructorsToUpsert.isEmpty()) {
+        Database.upsert(constructorsToUpsert, Constructor__c.Fields.constructorId__c, false);
+    }
+
+    // 3. Consultar Ids reales y normalizar claves
+    Map<String, Id> driverMap = new Map<String, Id>();
+    for (Driver__c d : [SELECT Id, driverId__c FROM Driver__c WHERE driverId__c IN :driverIds]) {
+        driverMap.put(d.driverId__c.trim().toLowerCase(), d.Id);
+    }
+
+    Map<String, Id> constructorMap = new Map<String, Id>();
+    for (Constructor__c c : [SELECT Id, constructorId__c FROM Constructor__c WHERE constructorId__c IN :constructorIds]) {
+        constructorMap.put(c.constructorId__c.trim().toLowerCase(), c.Id);
+    }
+
+    System.debug('driverMap: ' + driverMap);
+    System.debug('constructorMap: ' + constructorMap);
+
+    // 4. Asignar Lookups
+    Integer index = 0;
+    for (Map<String, Object> ds : resultsData) {
+        String dId = ((String) ds.get('driverId')).trim().toLowerCase();
+        String cId = ((String) ds.get('constructorId')).trim().toLowerCase();
+
+        resultsToInsert[index].Driver__c = driverMap.get(dId);
+        resultsToInsert[index].Constructor__c = constructorMap.get(cId);
+        index++;
+    }
+
+    // 5. Insert Results
+    if (!resultsToInsert.isEmpty()) 
+    {
+        Database.SaveResult[] sr = Database.insert(resultsToInsert, false);
+        Integer ok = 0, fail = 0;
+        for (Database.SaveResult s : sr) 
+        {
+            if (s.isSuccess()) 
+            {
+                ok++;
+            } else 
+            {
+                fail++;
+                for (Database.Error e : s.getErrors()) 
+                {
+                    System.debug('Error insert Result: ' + e.getStatusCode() + ' - ' + e.getMessage());
+                }
+            }
         }
-
-
+        System.debug('Resultados procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
     }
+}
 
-    
+// Helpers
+private static Integer toInteger(Object val) 
+{
+    if (val == null) return null;
+    try { return Integer.valueOf(String.valueOf(val)); } catch (Exception e) { return null; }
+}
+private static String buildDriverName(Map<String, Object> ds) {
+    String given = (String) ds.get('givenName');
+    String family = (String) ds.get('familyName');
+    String full = ((given != null ? given : '') + ' ' + (family != null ? family : '')).trim();
+    return String.isBlank(full) ? (String) ds.get('driverId') : full;
+}
 
-    // Helper seguro
-    private static Integer toInteger(Object val) {
-        if (val == null) return null;
-        try { return Integer.valueOf(String.valueOf(val)); } catch (Exception e) { return null; }
-    }
 }
