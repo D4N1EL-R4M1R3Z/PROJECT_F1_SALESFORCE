@@ -38,6 +38,10 @@
                 <behavior>Edit</behavior>
                 <field>fastestLapTime__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Sprint_id__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

@@ -55,6 +55,14 @@ public with sharing class race {
                         row.put('qualifyingTime', q.get('time'));
                     }
 
+                    Map<String, Object> circuitMap = (Map<String, Object>) race.get('Circuit');
+                        Object circuitId   = circuitMap != null ? circuitMap.get('circuitId') : null;
+                        Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null; 
+                    if (circuitMap != null) {
+                        row.put('circuitId', circuitId);
+                        row.put('circuitName', circuitName);
+                     }
+
                     result.add(row);
                 }
             } else {
@@ -74,8 +82,15 @@ public with sharing class race {
                 public static void saveRace() {
                     List<Map<String, Object>> raceData = giveRace();
                     List<race__c> raceToInsert = new List<race__c>();
+                    List<circuit__c> circuitToUpsert = new List<circuit__c>();
+                    Set<String> circuitIds = new Set<String>();
 
                     for (Map<String, Object> ds : raceData) {
+
+                        String circuitId = ((String) ds.get('circuitId')).trim().toLowerCase();
+                        if (!String.isBlank(circuitId)) circuitIds.add(circuitId);
+
+                        // RACE //
                         race__c r = new race__c();
                         r.Name   = (String) ds.get('raceName');
                         r.url__c = (String) ds.get('url');
@@ -84,8 +99,7 @@ public with sharing class race {
                         r.season__c =(String) ds.get('season');
                         r.raceNameId__c = (String) ds.get ('raceName');
                         
-                        
-                            String timeStr = (String) ds.get('time'); // Ejemplo: "14:30:00"
+                        String timeStr = (String) ds.get('time'); // Ejemplo: "14:30:00"
                             if (!String.isBlank(timeStr)) {
                                 List<String> parts = timeStr.replace('Z','').split(':');
                                 Integer hour = Integer.valueOf(parts[0]);
@@ -93,15 +107,46 @@ public with sharing class race {
                                 Integer second = Integer.valueOf(parts[2]);
                                 r.time__c = Time.newInstance(hour, minute, second, 0); // ✔ funciona en todas las versiones
                             }
-
-                        
-                        String dateStr = (String) ds.get('date');
+                          String dateStr = (String) ds.get('date');
                         if (!String.isBlank(dateStr)) {
                             r.date__c = Date.valueOf(dateStr);
                         }
 
-                        raceToInsert.add(r);
+                         raceToInsert.add(r);
+
+                        // CIRCUIT// 
+
+                        if(!String.isBlank(circuitId)){
+                        circuit__c c = new circuit__c ();
+                        c.circuitId__c = circuitId;
+                        circuitToUpsert.add(c);
+                        }
+                        
                     }
+                       // UPSERT CIRCUIT
+
+                    if (!circuitToUpsert.isEmpty()) {
+                        Database.upsert(circuitToUpsert, circuit__c.Fields.circuitId__c, false);
+                        }
+                
+                        //CONSTRUCCION DE CONSULTA SOQL PARA CIRCUIT
+                    Map<String, Id> circuitMap = new Map<String, Id>();
+                        for(circuit__c c : [SELECT Id,circuitId__c FROM circuit__c WHERE circuitId__c IN :circuitIds]) {
+                            circuitMap.put(c.circuitId__c.trim().toLowerCase(), c.Id);
+                        }
+                        
+                       //ASIGANCION DE LOOKUPS
+                    Integer index = 0 ;
+                        for (Map<String, Object> ds : raceData){
+                            String CrId = ((String) ds.get('circuitId')).trim().toLowerCase();
+
+                            raceToInsert[index].circuit__c = circuitMap.get(CrId);
+                            index++;
+                        }
+
+                        // INSERT RACE
+
+
 
                     if (!raceToInsert.isEmpty()) {
                         Database.insert(raceToInsert, false);

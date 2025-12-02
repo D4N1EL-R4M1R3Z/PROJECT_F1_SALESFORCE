@@ -9,4 +9,11 @@
         <value>Races</value>
     </caseValues>
     <gender>Feminine</gender>
+    <layouts>
+        <layout>Race Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
 </CustomObjectTranslation>

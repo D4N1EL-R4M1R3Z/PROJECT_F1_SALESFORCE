@@ -1,9 +1,7 @@
-public with sharing class result 
-{
+public with sharing class result {
 
     @AuraEnabled(cacheable=true)
-    public static List<Map<String, Object>> giveResults() 
-    {
+    public static List<Map<String, Object>> giveResults() {
         List<Map<String, Object>> result = new List<Map<String, Object>>();
 
         try {
@@ -15,15 +13,13 @@ public with sharing class result
             HttpResponse res = http.send(req);
             
             
-if (res.getStatusCode() == 200) 
-{
+if (res.getStatusCode() == 200) {
     Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
     Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
     Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
     List<Object> racesList = (List<Object>) raceTable.get('Races');
 
-    for (Object raceObj : racesList) 
-    {
+    for (Object raceObj : racesList) {
         Map<String, Object> raceMap = (Map<String, Object>) raceObj;
 
         // Datos del Race
@@ -42,8 +38,7 @@ if (res.getStatusCode() == 200)
         // Solo extraemos Results[]
         List<Object> resultsList = (List<Object>) raceMap.get('Results');
         if (resultsList != null) {
-            for (Object resObj : resultsList) 
-            {
+            for (Object resObj : resultsList) {
                 Map<String, Object> resMap = (Map<String, Object>) resObj;
 
                 //crear un row NUEVO por cada resultado
@@ -70,8 +65,7 @@ if (res.getStatusCode() == 200)
 
                 // Driver
                 Map<String, Object> driverMap = (Map<String, Object>) resMap.get('Driver');
-                if (driverMap != null) 
-                {
+                if (driverMap != null) {
                     row.put('driverId',        driverMap.get('driverId'));          // clave correcta
                     row.put('permanentNumber', driverMap.get('permanentNumber'));
                     row.put('code',            driverMap.get('code'));
@@ -84,8 +78,7 @@ if (res.getStatusCode() == 200)
 
                 // Constructor
                 Map<String, Object> constructorMap = (Map<String, Object>) resMap.get('Constructor');
-                if (constructorMap != null) 
-                { // condición corregida
+                if (constructorMap != null) { // condición corregida
                     row.put('constructorId',   constructorMap.get('constructorId')); // clave correcta
                     row.put('constructorName', constructorMap.get('name'));
                     row.put('constructorUrl',  constructorMap.get('url'));
@@ -99,26 +92,23 @@ if (res.getStatusCode() == 200)
             }
         }
     }
-            } else 
-            {
+            } else {
                 System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
             }
 
                     
-        } catch (Exception e) 
-        {
+        } catch (Exception e) {
             System.debug('Excepción en giveResults: ' + e.getMessage());
         }
+
         return result;
     }
 
    
 @AuraEnabled
-public static void saveResults() 
-{
+public static void saveResults() {
     List<Map<String, Object>> resultsData = giveResults();
-    if (resultsData.isEmpty()) 
-    {
+    if (resultsData.isEmpty()) {
         System.debug(LoggingLevel.WARN, 'No hay datos para procesar.');
         return;
     }
@@ -131,8 +121,7 @@ public static void saveResults()
     Set<String> constructorIds = new Set<String>();
 
     // 1. Preparar datos
-    for (Map<String, Object> ds : resultsData) 
-    {
+    for (Map<String, Object> ds : resultsData) {
         String driverId = ((String) ds.get('driverId')).trim().toLowerCase();
         String constructorId = ((String) ds.get('constructorId')).trim().toLowerCase();
 
@@ -206,20 +195,15 @@ public static void saveResults()
     }
 
     // 5. Insert Results
-    if (!resultsToInsert.isEmpty()) 
-    {
+    if (!resultsToInsert.isEmpty()) {
         Database.SaveResult[] sr = Database.insert(resultsToInsert, false);
         Integer ok = 0, fail = 0;
-        for (Database.SaveResult s : sr) 
-        {
-            if (s.isSuccess()) 
-            {
+        for (Database.SaveResult s : sr) {
+            if (s.isSuccess()) {
                 ok++;
-            } else 
-            {
+            } else {
                 fail++;
-                for (Database.Error e : s.getErrors()) 
-                {
+                for (Database.Error e : s.getErrors()) {
                     System.debug('Error insert Result: ' + e.getStatusCode() + ' - ' + e.getMessage());
                 }
             }
@@ -229,8 +213,7 @@ public static void saveResults()
 }
 
 // Helpers
-private static Integer toInteger(Object val) 
-{
+private static Integer toInteger(Object val) {
     if (val == null) return null;
     try { return Integer.valueOf(String.valueOf(val)); } catch (Exception e) { return null; }
 }

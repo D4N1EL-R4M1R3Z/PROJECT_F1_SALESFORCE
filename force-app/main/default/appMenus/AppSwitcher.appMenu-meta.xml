@@ -132,4 +132,12 @@
         <name>Frmula_1_Liga_Fantasy</name>
         <type>CustomApplication</type>
     </appMenuItems>
+    <appMenuItems>
+        <name>formula_1_DMJ</name>
+        <type>Network</type>
+    </appMenuItems>
+    <appMenuItems>
+        <name>formula_1_page</name>
+        <type>Network</type>
+    </appMenuItems>
 </AppMenu>
