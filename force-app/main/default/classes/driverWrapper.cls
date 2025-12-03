@@ -24,5 +24,10 @@ public class root
         public Date dateOfBirth {set; get;}     
         public String nationality {set; get;}
     }
-
+        public class constructor{
+        public String constructorId {set; get;}
+        public String url {set; get;}
+        public String name {set; get;}
+        public String nationality {set; get;}
+    }
 }

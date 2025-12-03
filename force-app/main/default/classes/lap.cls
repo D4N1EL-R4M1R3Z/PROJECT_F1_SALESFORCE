@@ -40,6 +40,8 @@ public with sharing class lap {
                                 Map<String, Object> circuitMap = (Map<String, Object>) lapMap.get('Circuit');
                                 Object circuitId   = circuitMap != null ? circuitMap.get('circuitId') : null;
                                 Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null;
+                                Object circuitLocation = circuitMap != null ? circuitMap.get('Location') : null;
+                                
                                 Object lapNumber = lapMap.get('number');
                                 
                                 List<Object> timingsList = (List<Object>) lapMap.get('Timings');

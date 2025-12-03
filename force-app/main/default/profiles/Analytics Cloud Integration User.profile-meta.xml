@@ -797,6 +797,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>pitstop__c.Circuit__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>pitstop__c.Driver__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>pitstop__c.Pitstop_id__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1658,6 +1668,10 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>lap__c</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>pitstop__c</tab>
         <visibility>DefaultOn</visibility>
     </tabVisibilities>
     <tabVisibilities>

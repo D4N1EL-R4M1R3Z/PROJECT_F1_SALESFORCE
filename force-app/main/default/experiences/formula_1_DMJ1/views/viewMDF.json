@@ -1,0 +1,75 @@
+{
+  "appPageId" : "a3370c84-a136-4df1-8e70-f1cdcb37eb6d",
+  "componentName" : "siteforce:dynamicLayout",
+  "dataProviders" : [ ],
+  "id" : "175cebc2-6e76-4ca6-a203-7196b3b4239c",
+  "label" : "View MDF",
+  "regions" : [ {
+    "components" : [ {
+      "componentAttributes" : {
+        "background" : "background: rgba(0,0,0,0)",
+        "backgroundOverlay" : "rgba(0,0,0,0.5)",
+        "contentAreaWidth" : 100,
+        "sectionConfig" : {
+          "UUID" : "90847958-b143-4242-9ea8-70e1c399c8b0",
+          "columns" : [ {
+            "UUID" : "b1687d72-979f-4117-8fdb-86ecd0fd03e2",
+            "columnKey" : "col1",
+            "columnName" : "MDF and Coop Column",
+            "columnWidth" : "12",
+            "seedComponents" : [ {
+              "attributes" : {
+                "filterName" : "Recent",
+                "scope" : "PartnerFundRequest",
+                "sfdc:identifier" : "forceCommunity_objectHome"
+              },
+              "fqn" : "forceCommunity:objectHome"
+            } ]
+          } ]
+        },
+        "sectionHeight" : 32
+      },
+      "componentName" : "forceCommunity:section",
+      "id" : "90847958-b143-4242-9ea8-70e1c399c8b0",
+      "regions" : [ {
+        "components" : [ {
+          "componentAttributes" : {
+            "enableInlineEdit" : true,
+            "filterName" : "Recent",
+            "layout" : "FULL",
+            "pageSize" : 25,
+            "scope" : "PartnerFundRequest",
+            "showActionBar" : true,
+            "showChartsPanel" : true,
+            "showDisplay" : "showall",
+            "showFilterPanel" : true,
+            "showImageIcon" : true,
+            "showManualRefreshButton" : true,
+            "showObjectName" : true,
+            "showPinnedList" : true,
+            "showSearchBar" : true
+          },
+          "componentName" : "forceCommunity:objectHome",
+          "id" : "9993c198-69e7-4af6-87ca-4e92c39822fe",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        } ],
+        "id" : "b1687d72-979f-4117-8fdb-86ecd0fd03e2",
+        "regionLabel" : "MDF and Coop Column",
+        "regionName" : "col1",
+        "renditionMap" : { },
+        "type" : "region"
+      } ],
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "c3d6898e-7978-405c-b034-fc4d411fb8ee",
+    "regionName" : "content",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "mdf"
+}

@@ -1,0 +1,75 @@
+{
+  "appPageId" : "a3370c84-a136-4df1-8e70-f1cdcb37eb6d",
+  "componentName" : "siteforce:dynamicLayout",
+  "dataProviders" : [ ],
+  "id" : "e183477e-23a5-4d0b-89c2-1dad494cd0ba",
+  "label" : "View Campaigns",
+  "regions" : [ {
+    "components" : [ {
+      "componentAttributes" : {
+        "background" : "background: rgba(0,0,0,0)",
+        "backgroundOverlay" : "rgba(0,0,0,0.5)",
+        "contentAreaWidth" : 100,
+        "sectionConfig" : {
+          "UUID" : "90efc38c-1342-4543-8e4e-99d1ac5fded8",
+          "columns" : [ {
+            "UUID" : "eb5be095-76c2-498b-9f7d-31c922f26a69",
+            "columnKey" : "col1",
+            "columnName" : "Campaign List Column",
+            "columnWidth" : "12",
+            "seedComponents" : [ {
+              "attributes" : {
+                "filterName" : "Recent",
+                "scope" : "Campaign",
+                "sfdc:identifier" : "forceCommunity_objectHome_campaign"
+              },
+              "fqn" : "forceCommunity:objectHome"
+            } ]
+          } ]
+        },
+        "sectionHeight" : 32
+      },
+      "componentName" : "forceCommunity:section",
+      "id" : "90efc38c-1342-4543-8e4e-99d1ac5fded8",
+      "regions" : [ {
+        "components" : [ {
+          "componentAttributes" : {
+            "enableInlineEdit" : true,
+            "filterName" : "Recent",
+            "layout" : "FULL",
+            "pageSize" : 25,
+            "scope" : "Campaign",
+            "showActionBar" : true,
+            "showChartsPanel" : true,
+            "showDisplay" : "showall",
+            "showFilterPanel" : true,
+            "showImageIcon" : true,
+            "showManualRefreshButton" : true,
+            "showObjectName" : true,
+            "showPinnedList" : true,
+            "showSearchBar" : true
+          },
+          "componentName" : "forceCommunity:objectHome",
+          "id" : "495dfff4-9a51-4cb1-8cf9-34ec123c8853",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        } ],
+        "id" : "eb5be095-76c2-498b-9f7d-31c922f26a69",
+        "regionLabel" : "Campaign List Column",
+        "regionName" : "col1",
+        "renditionMap" : { },
+        "type" : "region"
+      } ],
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "e2f486e0-6cf5-469f-998a-be68ddd49ba9",
+    "regionName" : "content",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "campaign-list"
+}

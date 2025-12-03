@@ -32,6 +32,7 @@
     <tabs>Team_Fantasy__c</tabs>
     <tabs>race__c</tabs>
     <tabs>lap__c</tabs>
+    <tabs>pitstop__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>LightningSales_UtilityBar</utilityBar>
 </CustomApplication>

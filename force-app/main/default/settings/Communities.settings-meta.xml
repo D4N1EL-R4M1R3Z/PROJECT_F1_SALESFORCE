@@ -6,7 +6,7 @@
     <embeddedVisualforcePages>false</embeddedVisualforcePages>
     <enableCommunityWorkspaces>true</enableCommunityWorkspaces>
     <enableCspContactVisibilityPref>false</enableCspContactVisibilityPref>
-    <enableCspNotesOnAccConPref>true</enableCspNotesOnAccConPref>
+    <enableCspNotesOnAccConPref>false</enableCspNotesOnAccConPref>
     <enableEnablePRM>false</enableEnablePRM>
     <enableExternalAccHierPref>false</enableExternalAccHierPref>
     <enableGuestPermDisOptOutCruc>false</enableGuestPermDisOptOutCruc>
@@ -14,7 +14,7 @@
     <enableGuvSecurityOptOutPref>false</enableGuvSecurityOptOutPref>
     <enableInviteChatterGuestEnabled>true</enableInviteChatterGuestEnabled>
     <enableNameFieldsUserPIIEnabled>false</enableNameFieldsUserPIIEnabled>
-    <enableNetPortalUserReportOpts>false</enableNetPortalUserReportOpts>
+    <enableNetPortalUserReportOpts>true</enableNetPortalUserReportOpts>
     <enableNetworksEnabled>true</enableNetworksEnabled>
     <enableOotbProfExtUserOpsEnable>false</enableOotbProfExtUserOpsEnable>
     <enablePRMAccRelPref>false</enablePRMAccRelPref>

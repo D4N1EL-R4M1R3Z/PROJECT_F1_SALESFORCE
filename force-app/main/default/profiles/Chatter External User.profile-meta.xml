@@ -656,9 +656,9 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>driver__c.Constructor__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -793,6 +793,16 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>lap__c.time__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>pitstop__c.Circuit__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>pitstop__c.Driver__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1518,6 +1528,10 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>lap__c</tab>
+        <visibility>Hidden</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>pitstop__c</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>

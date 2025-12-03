@@ -38,6 +38,7 @@
     <tabs>Team_Fantasy__c</tabs>
     <tabs>race__c</tabs>
     <tabs>lap__c</tabs>
+    <tabs>pitstop__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>LightningSalesConsole_UtilityBar</utilityBar>
     <workspaceConfig>
@@ -55,6 +56,9 @@
         </mappings>
         <mappings>
             <tab>lap__c</tab>
+        </mappings>
+        <mappings>
+            <tab>pitstop__c</tab>
         </mappings>
         <mappings>
             <tab>race__c</tab>
