@@ -546,6 +546,16 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Team_Fantasy__c.Driver_3__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Team_Fantasy__c.Driver_4__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>circuit__c.Location__c</field>
         <readable>false</readable>
@@ -742,17 +752,17 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>lap__c.Driver__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>lap__c.Location__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>lap__c.Race__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>lap__c.driverId__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -874,6 +884,11 @@
         <editable>false</editable>
         <field>race__c.url__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>result__c.Circuit__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>

@@ -13,14 +13,14 @@ public with sharing class result {
             HttpResponse res = http.send(req);
             
             
-if (res.getStatusCode() == 200) {
-    Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-    Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
-    Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
-    List<Object> racesList = (List<Object>) raceTable.get('Races');
+    if (res.getStatusCode() == 200) {
+        Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+        Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
+        Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+        List<Object> racesList = (List<Object>) raceTable.get('Races');
 
-    for (Object raceObj : racesList) {
-        Map<String, Object> raceMap = (Map<String, Object>) raceObj;
+        for (Object raceObj : racesList) {
+            Map<String, Object> raceMap = (Map<String, Object>) raceObj;
 
         // Datos del Race
         Object season       = raceMap.get('season');
@@ -49,11 +49,7 @@ if (res.getStatusCode() == 200) {
                 row.put('round', round);
                 row.put('raceUrl', raceUrl);
                 row.put('raceName', raceName);
-                /*row.put('raceDate', date);
-                row.put('raceTime', time);*/
-                row.put('circuitId', circuitId);
-                row.put('circuitName', circuitName);
-
+                
                 // Campos del resultado
                 row.put('number',       resMap.get('number'));
                 row.put('position',     resMap.get('position'));
@@ -85,9 +81,15 @@ if (res.getStatusCode() == 200) {
                     row.put('constructorNat',  constructorMap.get('nationality'));
                 }
 
+                // CircuIT
+                  //  Map<String, Object> circuitMap = (Map<String, Object>) resMap.get('Circuit');
+                    if(circuitMap != null){
+                     row.put('circuitId', (circuitId));
+                     row.put('circuitName', (circuitName));
+
                 // (Opcional) tiempos/paradas si existen
                 // Ejemplo: row.put('fastestLapRank', ((Map<String,Object>)resMap.get('FastestLap'))?.get('rank'));
-
+                }   
                 result.add(row);
             }
         }
@@ -105,6 +107,7 @@ if (res.getStatusCode() == 200) {
     }
 
    
+    
 @AuraEnabled
 public static void saveResults() {
     List<Map<String, Object>> resultsData = giveResults();
@@ -116,23 +119,31 @@ public static void saveResults() {
     List<result__c> resultsToInsert = new List<result__c>();
     List<Constructor__c> constructorsToUpsert = new List<Constructor__c>();
     List<Driver__c> driversToUpsert = new List<Driver__c>();
+    List<Circuit__c> circuitsToUpsert = new List<Circuit__c>();
 
     Set<String> driverIds = new Set<String>();
     Set<String> constructorIds = new Set<String>();
+    Set<String> circuitIds = new Set<String>();
 
     // 1. Preparar datos
     for (Map<String, Object> ds : resultsData) {
-        String driverId = ((String) ds.get('driverId')).trim().toLowerCase();
-        String constructorId = ((String) ds.get('constructorId')).trim().toLowerCase();
+        String driverIdRaw = (String) ds.get('driverId');
+        String constructorIdRaw = (String) ds.get('constructorId');
+        String circuitIdRaw = (String) ds.get('circuitId');
+
+        String driverId = driverIdRaw != null ? driverIdRaw.trim().toLowerCase() : null;
+        String constructorId = constructorIdRaw != null ? constructorIdRaw.trim().toLowerCase() : null;
+        String circuitId = circuitIdRaw != null ? circuitIdRaw.trim().toLowerCase() : null;
 
         if (!String.isBlank(driverId)) driverIds.add(driverId);
         if (!String.isBlank(constructorId)) constructorIds.add(constructorId);
+        if (!String.isBlank(circuitId)) circuitIds.add(circuitId);
 
         // Driver
         if (!String.isBlank(driverId)) {
             Driver__c d = new Driver__c();
-            d.driverId__c = driverId; // External Id
-            d.Name = (String) ds.get('givenName') + ' ' + (String) ds.get('familyName');
+            d.driverId__c = driverId;
+            d.Name = buildDriverName(ds);
             d.nationality__c = (String) ds.get('nationality');
             d.url__c = (String) ds.get('driverUrl');
             driversToUpsert.add(d);
@@ -141,11 +152,20 @@ public static void saveResults() {
         // Constructor
         if (!String.isBlank(constructorId)) {
             Constructor__c c = new Constructor__c();
-            c.constructorId__c = constructorId; // External Id
+            c.constructorId__c = constructorId;
             c.Name = (String) ds.get('constructorName');
             c.url__c = (String) ds.get('constructorUrl');
             c.nationality__c = (String) ds.get('constructorNat');
             constructorsToUpsert.add(c);
+        }
+
+        // Circuit
+        if (!String.isBlank(circuitId)) {
+            Circuit__c ci = new Circuit__c();
+            ci.circuitId__c = circuitId;
+            ci.Name = (String) ds.get('circuitName');
+            ci.url__c = (String) ds.get('circuitUrl');
+            circuitsToUpsert.add(ci);
         }
 
         // Result (sin Lookups aún)
@@ -161,12 +181,15 @@ public static void saveResults() {
         resultsToInsert.add(r);
     }
 
-    // 2. Upsert Drivers y Constructors
+    // 2. Upsert Drivers, Constructors y Circuits
     if (!driversToUpsert.isEmpty()) {
         Database.upsert(driversToUpsert, Driver__c.Fields.driverId__c, false);
     }
     if (!constructorsToUpsert.isEmpty()) {
         Database.upsert(constructorsToUpsert, Constructor__c.Fields.constructorId__c, false);
+    }
+    if (!circuitsToUpsert.isEmpty()) {
+        Database.upsert(circuitsToUpsert, Circuit__c.Fields.circuitId__c, false);
     }
 
     // 3. Consultar Ids reales y normalizar claves
@@ -180,17 +203,25 @@ public static void saveResults() {
         constructorMap.put(c.constructorId__c.trim().toLowerCase(), c.Id);
     }
 
+    Map<String, Id> circuitMap = new Map<String, Id>();
+    for (Circuit__c ci : [SELECT Id, circuitId__c FROM Circuit__c WHERE circuitId__c IN :circuitIds]) {
+        circuitMap.put(ci.circuitId__c.trim().toLowerCase(), ci.Id);
+    }
+
     System.debug('driverMap: ' + driverMap);
     System.debug('constructorMap: ' + constructorMap);
+    System.debug('circuitMap: ' + circuitMap);
 
     // 4. Asignar Lookups
     Integer index = 0;
     for (Map<String, Object> ds : resultsData) {
         String dId = ((String) ds.get('driverId')).trim().toLowerCase();
         String cId = ((String) ds.get('constructorId')).trim().toLowerCase();
+        String ciId = ((String) ds.get('circuitId')).trim().toLowerCase();
 
         resultsToInsert[index].Driver__c = driverMap.get(dId);
         resultsToInsert[index].Constructor__c = constructorMap.get(cId);
+        resultsToInsert[index].Circuit__c = circuitMap.get(ciId);
         index++;
     }
 

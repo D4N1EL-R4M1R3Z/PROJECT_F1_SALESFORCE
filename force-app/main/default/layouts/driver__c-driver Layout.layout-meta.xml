@@ -91,11 +91,31 @@
     </layoutSections>
     <relatedLists>
         <fields>NAME</fields>
-        <relatedList>lap__c.driverId__c</relatedList>
+        <relatedList>lap__c.Driver__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
         <relatedList>result__c.Driver__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>Team_Fantasy__c.Driver_1__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>Team_Fantasy__c.Driver_2__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>Team_Fantasy__c.Driver_3__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>Team_Fantasy__c.Driver_4__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>Team_Fantasy__c.Driver_5__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>

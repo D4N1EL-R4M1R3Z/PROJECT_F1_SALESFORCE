@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Constructor 2 --></label>
+    <name>Constructor_2__c</name>
+    <relationshipLabel><!-- Teams Fantasy (Constructor 2) --></relationshipLabel>
+</CustomFieldTranslation>

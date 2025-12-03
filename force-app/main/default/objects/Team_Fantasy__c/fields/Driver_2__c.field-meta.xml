@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Driver_2__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>second driver for team fantasy</description>
+    <inlineHelpText>In this field is the second driver of team fantasy</inlineHelpText>
+    <label>Driver 2</label>
+    <referenceTo>driver__c</referenceTo>
+    <relationshipLabel>Teams Fantasy (Driver 2)</relationshipLabel>
+    <relationshipName>Teams_Fantasy1</relationshipName>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

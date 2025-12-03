@@ -56,12 +56,22 @@ public with sharing class race {
                     }
 
                     Map<String, Object> circuitMap = (Map<String, Object>) race.get('Circuit');
+                    Map<String, Object> location = (Map<String, Object>) circuitMap.get('Location');
                         Object circuitId   = circuitMap != null ? circuitMap.get('circuitId') : null;
                         Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null; 
                     if (circuitMap != null) {
-                        row.put('circuitId', circuitId);
-                        row.put('circuitName', circuitName);
+                        row.put('circuitId',  circuitMap.get ('circuitId'));
+                        row.put('circuitName', circuitMap.get ('circuitName'));
+                        row.put('url', circuitMap.get('url')); 
                      }
+
+                    if (location != null) {
+                        
+                        row.put('lat', location.get('lat'));
+                        row.put('long', location.get('long'));
+                        row.put('locality', location.get('locality'));
+                        row.put('country', location.get('country'));
+                    }
 
                     result.add(row);
                 }
@@ -83,11 +93,13 @@ public with sharing class race {
                     List<Map<String, Object>> raceData = giveRace();
                     List<race__c> raceToInsert = new List<race__c>();
                     List<circuit__c> circuitToUpsert = new List<circuit__c>();
+                    
                     Set<String> circuitIds = new Set<String>();
 
                     for (Map<String, Object> ds : raceData) {
 
                         String circuitId = ((String) ds.get('circuitId')).trim().toLowerCase();
+                        
                         if (!String.isBlank(circuitId)) circuitIds.add(circuitId);
 
                         // RACE //
@@ -119,6 +131,18 @@ public with sharing class race {
                         if(!String.isBlank(circuitId)){
                         circuit__c c = new circuit__c ();
                         c.circuitId__c = circuitId;
+                        c.Name = (String) ds.get('circuitName');
+                        c.url__c = (String) ds.get('url');
+                        if (ds.get('lat') != null) {
+                            c.Location__Latitude__s = Decimal.valueOf(String.valueOf(ds.get('lat')));
+                        }
+                        if (ds.get('long') != null) {
+                            c.Location__Longitude__s = Decimal.valueOf(String.valueOf(ds.get('long')));
+                        }
+                        c.locality__c = (String) ds.get('locality');
+                        c.country__c = (String) ds.get('country');
+
+
                         circuitToUpsert.add(c);
                         }
                         

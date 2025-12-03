@@ -37,7 +37,9 @@ public with sharing class lap {
                             // generamos un blucle para poder recorere cada lap que se encuentr dentro de race
                             for (Object lapObj : lapsList) {
                                 Map<String, Object> lapMap = (Map<String, Object>) lapObj;
-
+                                Map<String, Object> circuitMap = (Map<String, Object>) lapMap.get('Circuit');
+                                Object circuitId   = circuitMap != null ? circuitMap.get('circuitId') : null;
+                                Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null;
                                 Object lapNumber = lapMap.get('number');
                                 
                                 List<Object> timingsList = (List<Object>) lapMap.get('Timings');
@@ -79,11 +81,11 @@ public static void saveLap() {
 
     for (Map<String, Object> ls : lapData) {
         // Crear circuito para upsert
-        Circuit__c circuit = new Circuit__c();
+        /*Circuit__c circuit = new Circuit__c();
         circuit.circuitId__c = (String) ls.get('circuitId'); // External Id
         circuit.Name = (String) ls.get('Name');
         circuit.url__c = (String) ls.get('circuitUrl');
-        circuitsToUpsert.add(circuit);
+        circuitsToUpsert.add(circuit);*/
 
         // Crear lap
         lap__c l = new lap__c();
@@ -92,11 +94,11 @@ public static void saveLap() {
         String timeVal = (String) ls.get('time');
                 l.time__c = parseQuTime(timeVal);
 
-        // Relacionar con circuito por External Id
+        /*// Relacionar con circuito por External Id
         String circuitId = (String) ls.get('circuitId');
         if (String.isNotBlank(circuitId)) {
             l.Circuit__r = new Circuit__c(circuitId__c = circuitId);
-        }
+        }*/
 
         lapToInsert.add(l);
     }

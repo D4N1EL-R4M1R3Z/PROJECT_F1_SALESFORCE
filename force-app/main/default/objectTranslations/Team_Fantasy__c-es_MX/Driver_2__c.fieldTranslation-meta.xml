@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- In this field is the second driver of team fantasy --></help>
+    <label><!-- Driver 2 --></label>
+    <name>Driver_2__c</name>
+    <relationshipLabel><!-- Teams Fantasy (Driver 2) --></relationshipLabel>
+</CustomFieldTranslation>
