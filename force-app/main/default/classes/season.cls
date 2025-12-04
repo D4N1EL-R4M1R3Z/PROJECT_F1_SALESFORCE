@@ -48,6 +48,7 @@ public with sharing class season {
 
                     for (Map<String, Object> ls : seasonData) {
                         season__c s = new season__c();
+                        s.Name = (String) ls.get('season');
                         s.url__c = (String) ls.get('url');
                         s.season__c = Integer.valueOf((String) ls.get('season'));
                         seasionToInsert.add(s);

@@ -6,7 +6,7 @@ public with sharing class constructorstanding {
         try {
             Http http = new Http();
             HttpRequest req = new HttpRequest();
-            req.setEndpoint('callout:pilotos2/ergast/f1/2025/constructorstandings.json'); //se coloca la direccion Url de la api en forma de callout
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/constructorstandings.json'); //se coloca la direccion Url de la api en forma de callout
             req.setMethod('GET');
 
             HttpResponse res = http.send(req);

@@ -1,6 +1,20 @@
 public with sharing class driver 
 {
-
+/**
+ * =====================================================
+ * Calculo de Valor de Drivers
+ * =====================================================
+ * Servicio para calcular y asignar Value__c a Drivers
+ * basado en su rendimiento (puntos y victorias).
+ 
+ * USO:
+ *   ValueCalculatorService.calculateDriverValues();   // Solo Drivers
+ *   ValueCalculatorService.calculateConstructorValues(); // Solo Constructors
+ 
+ * FÓRMULA:
+ *   Value = Base + (Points * factor) + (Wins * bonus)
+ * =====================================================
+ */
     // ###############################################################
     //  Método que consume la API de drivers y devuelve un List<Map>
     //  *** NO toca constructor aquí porque /drivers.json no lo trae. ***
@@ -12,7 +26,7 @@ public with sharing class driver
         try {
             Http http = new Http();
             HttpRequest req = new HttpRequest();
-            req.setEndpoint('callout:pilotos2/ergast/f1/2025/drivers.json'); // se coloca la direccion Url de la api en forma de callout
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/drivers.json'); // se coloca la direccion Url de la api en forma de callout
             req.setMethod('GET');
 
             HttpResponse res = http.send(req);

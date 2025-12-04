@@ -18,6 +18,14 @@
         <type>Flexipage</type>
         <pageOrSobjectType>driver__c</pageOrSobjectType>
     </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <content>F1_Home</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>standard-home</pageOrSobjectType>
+    </actionOverrides>
     <brand>
         <headerColor>#374B6B</headerColor>
         <logo>Captura_de_pantalla_28102025_155738</logo>
@@ -40,8 +48,11 @@
     <tabs>result__c</tabs>
     <tabs>Team_Fantasy__c</tabs>
     <tabs>race__c</tabs>
-    <tabs>lap__c</tabs>
-    <tabs>pitstop__c</tabs>
+    <tabs>sprint__c</tabs>
+    <tabs>standard-home</tabs>
+    <tabs>standard-ApprovalsHome</tabs>
+    <tabs>driverstanding__c</tabs>
+    <tabs>constructorstanding__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>F_rmula_1_Liga_Fantasy_UtilityBar</utilityBar>
 </CustomApplication>

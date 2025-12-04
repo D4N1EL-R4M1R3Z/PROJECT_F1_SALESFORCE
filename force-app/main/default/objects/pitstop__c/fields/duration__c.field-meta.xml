@@ -3,9 +3,9 @@
     <fullName>duration__c</fullName>
     <externalId>false</externalId>
     <label>duration</label>
-    <precision>8</precision>
+    <precision>9</precision>
     <required>false</required>
-    <scale>2</scale>
+    <scale>3</scale>
     <trackTrending>false</trackTrending>
     <type>Number</type>
     <unique>false</unique>

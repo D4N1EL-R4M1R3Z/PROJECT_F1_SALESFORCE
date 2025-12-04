@@ -1,5 +1,5 @@
-public with sharing class result {
-
+public with sharing class result 
+{
     @AuraEnabled(cacheable=true)
     public static List<Map<String, Object>> giveResults() {
         List<Map<String, Object>> result = new List<Map<String, Object>>();
@@ -7,97 +7,112 @@ public with sharing class result {
         try {
             Http http = new Http();
             HttpRequest req = new HttpRequest();
-            req.setEndpoint('callout:pilotos2/ergast/f1/2025/results.json'); // Ajusta Named Credential
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/results.json?limit=1000');
             req.setMethod('GET');
 
             HttpResponse res = http.send(req);
             
-            
-    if (res.getStatusCode() == 200) {
-        Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-        Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
-        Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
-        List<Object> racesList = (List<Object>) raceTable.get('Races');
+            if (res.getStatusCode() == 200) {
+                Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
+                Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+                List<Object> racesList = (List<Object>) raceTable.get('Races');
 
-        for (Object raceObj : racesList) {
-            Map<String, Object> raceMap = (Map<String, Object>) raceObj;
+                for (Object raceObj : racesList) {
+                    Map<String, Object> raceMap = (Map<String, Object>) raceObj;
 
-        // Datos del Race
-        Object season       = raceMap.get('season');
-        Object round        = raceMap.get('round');
-        Object raceUrl      = raceMap.get('url');
-        Object raceName     = raceMap.get('raceName');
-       /* Object date         = raceMap.get('date');
-        Object time         = raceMap.get('time');*/
+                    // Datos del Race
+                    Object season = raceMap.get('season');
+                    Object round = raceMap.get('round');
+                    Object raceUrl = raceMap.get('url');
+                    Object raceName = raceMap.get('raceName');
 
-        // (Opcional) Circuito
-        Map<String, Object> circuitMap = (Map<String, Object>) raceMap.get('Circuit');
-        Object circuitId   = circuitMap != null ? circuitMap.get('circuitId') : null;
-        Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null;
+                    // Circuito
+                    Map<String, Object> circuitMap = (Map<String, Object>) raceMap.get('Circuit');
+                    Object circuitId = circuitMap != null ? circuitMap.get('circuitId') : null;
+                    Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null;
+                    Object circuitUrl = circuitMap != null ? circuitMap.get('url') : null;
 
-        // Solo extraemos Results[]
-        List<Object> resultsList = (List<Object>) raceMap.get('Results');
-        if (resultsList != null) {
-            for (Object resObj : resultsList) {
-                Map<String, Object> resMap = (Map<String, Object>) resObj;
+                    // Solo extraemos Results[]
+                    List<Object> resultsList = (List<Object>) raceMap.get('Results');
+                    if (resultsList != null) {
+                        for (Object resObj : resultsList) {
+                            Map<String, Object> resMap = (Map<String, Object>) resObj;
 
-                //crear un row NUEVO por cada resultado
-                Map<String, Object> row = new Map<String, Object>();
+                            // Crear un row NUEVO por cada resultado
+                            Map<String, Object> row = new Map<String, Object>();
 
-                // Contexto de la carrera
-                row.put('season', season);
-                row.put('round', round);
-                row.put('raceUrl', raceUrl);
-                row.put('raceName', raceName);
-                
-                // Campos del resultado
-                row.put('number',       resMap.get('number'));
-                row.put('position',     resMap.get('position'));
-                row.put('positionText', resMap.get('positionText'));
-                row.put('points',       resMap.get('points'));
-                row.put('grid',         resMap.get('grid'));
-                row.put('laps',         resMap.get('laps'));
-                row.put('status',       resMap.get('status'));
+                            // Contexto de la carrera
+                            row.put('season', season);
+                            row.put('round', round);
+                            row.put('raceUrl', raceUrl);
+                            row.put('raceName', raceName);
+                            
+                            // Campos del resultado
+                            row.put('number', resMap.get('number'));
+                            row.put('position', resMap.get('position'));
+                            row.put('positionText', resMap.get('positionText'));
+                            row.put('points', resMap.get('points'));
+                            row.put('grid', resMap.get('grid'));
+                            row.put('laps', resMap.get('laps'));
+                            row.put('status', resMap.get('status'));
 
-                // Driver
-                Map<String, Object> driverMap = (Map<String, Object>) resMap.get('Driver');
-                if (driverMap != null) {
-                    row.put('driverId',        driverMap.get('driverId'));          // clave correcta
-                    row.put('permanentNumber', driverMap.get('permanentNumber'));
-                    row.put('code',            driverMap.get('code'));
-                    row.put('driverUrl',       driverMap.get('url'));
-                    row.put('givenName',       driverMap.get('givenName'));
-                    row.put('familyName',      driverMap.get('familyName'));
-                    row.put('dateOfBirth',     driverMap.get('dateOfBirth'));
-                    row.put('nationality',     driverMap.get('nationality'));
+                            // ========== FASTEST LAP (NUEVO) ==========
+                            Map<String, Object> fastestLapMap = (Map<String, Object>) resMap.get('FastestLap');
+                            if (fastestLapMap != null) {
+                                Object fastestLapRank = fastestLapMap.get('rank');
+                                row.put('fastestLapRank', fastestLapRank);
+                                row.put('fastestLapNumber', fastestLapMap.get('lap'));
+                                
+                                // Tiempo de la vuelta rápida
+                                Map<String, Object> fastestLapTime = (Map<String, Object>) fastestLapMap.get('Time');
+                                if (fastestLapTime != null) {
+                                    row.put('fastestLapTime', fastestLapTime.get('time'));
+                                }
+                                
+                                // Velocidad promedio
+                                Map<String, Object> avgSpeed = (Map<String, Object>) fastestLapMap.get('AverageSpeed');
+                                if (avgSpeed != null) {
+                                    row.put('fastestLapAvgSpeed', avgSpeed.get('speed'));
+                                }
+                            }
+
+                            // Driver
+                            Map<String, Object> driverMap = (Map<String, Object>) resMap.get('Driver');
+                            if (driverMap != null) {
+                                row.put('driverId', driverMap.get('driverId'));
+                                row.put('permanentNumber', driverMap.get('permanentNumber'));
+                                row.put('code', driverMap.get('code'));
+                                row.put('driverUrl', driverMap.get('url'));
+                                row.put('givenName', driverMap.get('givenName'));
+                                row.put('familyName', driverMap.get('familyName'));
+                                row.put('dateOfBirth', driverMap.get('dateOfBirth'));
+                                row.put('nationality', driverMap.get('nationality'));
+                            }
+
+                            // Constructor
+                            Map<String, Object> constructorMap = (Map<String, Object>) resMap.get('Constructor');
+                            if (constructorMap != null) {
+                                row.put('constructorId', constructorMap.get('constructorId'));
+                                row.put('constructorName', constructorMap.get('name'));
+                                row.put('constructorUrl', constructorMap.get('url'));
+                                row.put('constructorNat', constructorMap.get('nationality'));
+                            }
+
+                            // Circuit
+                            if (circuitMap != null) {
+                                row.put('circuitId', circuitId);
+                                row.put('circuitName', circuitName);
+                                row.put('circuitUrl', circuitUrl);
+                            }
+
+                            result.add(row);
+                        }
+                    }
                 }
-
-                // Constructor
-                Map<String, Object> constructorMap = (Map<String, Object>) resMap.get('Constructor');
-                if (constructorMap != null) { // condición corregida
-                    row.put('constructorId',   constructorMap.get('constructorId')); // clave correcta
-                    row.put('constructorName', constructorMap.get('name'));
-                    row.put('constructorUrl',  constructorMap.get('url'));
-                    row.put('constructorNat',  constructorMap.get('nationality'));
-                }
-
-                // CircuIT
-                  //  Map<String, Object> circuitMap = (Map<String, Object>) resMap.get('Circuit');
-                    if(circuitMap != null){
-                     row.put('circuitId', (circuitId));
-                     row.put('circuitName', (circuitName));
-
-                // (Opcional) tiempos/paradas si existen
-                // Ejemplo: row.put('fastestLapRank', ((Map<String,Object>)resMap.get('FastestLap'))?.get('rank'));
-                }   
-                result.add(row);
-            }
-        }
-    }
             } else {
                 System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
             }
-
                     
         } catch (Exception e) {
             System.debug('Excepción en giveResults: ' + e.getMessage());
@@ -256,3 +271,113 @@ private static String buildDriverName(Map<String, Object> ds) {
 }
 
 }
+
+
+
+// MÉTODO SIN FATSTES LAP
+//  @AuraEnabled(cacheable=true)
+//     public static List<Map<String, Object>> giveResults() 
+//     {
+//         List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+//         try {
+//             Http http = new Http();
+//             HttpRequest req = new HttpRequest();
+//             req.setEndpoint('callout:pilotos2/ergast/f1/2025/results.json'); // Ajusta Named Credential
+//             req.setMethod('GET');
+
+//             HttpResponse res = http.send(req);
+            
+            
+//     if (res.getStatusCode() == 200) {
+//         Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+//         Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
+//         Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+//         List<Object> racesList = (List<Object>) raceTable.get('Races');
+
+//         for (Object raceObj : racesList) {
+//             Map<String, Object> raceMap = (Map<String, Object>) raceObj;
+
+//         // Datos del Race
+//         Object season       = raceMap.get('season');
+//         Object round        = raceMap.get('round');
+//         Object raceUrl      = raceMap.get('url');
+//         Object raceName     = raceMap.get('raceName');
+//        /* Object date         = raceMap.get('date');
+//         Object time         = raceMap.get('time');*/
+
+//         // (Opcional) Circuito
+//         Map<String, Object> circuitMap = (Map<String, Object>) raceMap.get('Circuit');
+//         Object circuitId   = circuitMap != null ? circuitMap.get('circuitId') : null;
+//         Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null;
+
+//         // Solo extraemos Results[]
+//         List<Object> resultsList = (List<Object>) raceMap.get('Results');
+//         if (resultsList != null) {
+//             for (Object resObj : resultsList) {
+//                 Map<String, Object> resMap = (Map<String, Object>) resObj;
+
+//                 //crear un row NUEVO por cada resultado
+//                 Map<String, Object> row = new Map<String, Object>();
+
+//                 // Contexto de la carrera
+//                 row.put('season', season);
+//                 row.put('round', round);
+//                 row.put('raceUrl', raceUrl);
+//                 row.put('raceName', raceName);
+                
+//                 // Campos del resultado
+//                 row.put('number',       resMap.get('number'));
+//                 row.put('position',     resMap.get('position'));
+//                 row.put('positionText', resMap.get('positionText'));
+//                 row.put('points',       resMap.get('points'));
+//                 row.put('grid',         resMap.get('grid'));
+//                 row.put('laps',         resMap.get('laps'));
+//                 row.put('status',       resMap.get('status'));
+
+//                 // Driver
+//                 Map<String, Object> driverMap = (Map<String, Object>) resMap.get('Driver');
+//                 if (driverMap != null) {
+//                     row.put('driverId',        driverMap.get('driverId'));          // clave correcta
+//                     row.put('permanentNumber', driverMap.get('permanentNumber'));
+//                     row.put('code',            driverMap.get('code'));
+//                     row.put('driverUrl',       driverMap.get('url'));
+//                     row.put('givenName',       driverMap.get('givenName'));
+//                     row.put('familyName',      driverMap.get('familyName'));
+//                     row.put('dateOfBirth',     driverMap.get('dateOfBirth'));
+//                     row.put('nationality',     driverMap.get('nationality'));
+//                 }
+
+//                 // Constructor
+//                 Map<String, Object> constructorMap = (Map<String, Object>) resMap.get('Constructor');
+//                 if (constructorMap != null) { // condición corregida
+//                     row.put('constructorId',   constructorMap.get('constructorId')); // clave correcta
+//                     row.put('constructorName', constructorMap.get('name'));
+//                     row.put('constructorUrl',  constructorMap.get('url'));
+//                     row.put('constructorNat',  constructorMap.get('nationality'));
+//                 }
+
+//                 // CircuIT
+//                   //  Map<String, Object> circuitMap = (Map<String, Object>) resMap.get('Circuit');
+//                     if(circuitMap != null){
+//                      row.put('circuitId', (circuitId));
+//                      row.put('circuitName', (circuitName));
+
+//                 // (Opcional) tiempos/paradas si existen
+//                 // Ejemplo: row.put('fastestLapRank', ((Map<String,Object>)resMap.get('FastestLap'))?.get('rank'));
+//                 }   
+//                 result.add(row);
+//             }
+//         }
+//     }
+//             } else {
+//                 System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
+//             }
+
+                    
+//         } catch (Exception e) {
+//             System.debug('Excepción en giveResults: ' + e.getMessage());
+//         }
+
+//         return result;
+//     }

@@ -22,6 +22,7 @@ public with sharing class status {
                                         Map<String,Object> row = new Map<String,Object>();
                                         row.put('statusId', status.get('statusId'));
                                         row.put('status', status.get('status'));
+                                        row.put('count', Integer.valueOf(String.valueOf(status.get('count'))));
                                         result.add(row); 
 
                                             result.add(row);
@@ -45,7 +46,9 @@ public with sharing class status {
 
                         status__c s = new status__c();
                         s.statusId__c = Integer.valueOf(String.valueOf(stat.get('statusId')));
+                        s.count__c = Integer.valueOf(String.valueOf(stat.get('count')));
                         s.status__c = (string)stat.get('status');
+                        s.name = (String)stat.get('statusId');
                         statustoInsert.add(s);
                 }
                 if (!statustoInsert.isEmpty()) {

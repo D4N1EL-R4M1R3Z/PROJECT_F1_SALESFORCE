@@ -60,7 +60,7 @@ public static List<Map<String, Object>> givepitstop() {
 }
 
 
-                // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+    // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
 
 
                 @AuraEnabled
@@ -100,13 +100,25 @@ public static List<Map<String, Object>> givepitstop() {
                             circuitsToUpsert.add(ci);
                         }
 
-                        pitstop__c p = new pitstop__c();
-                        p.Name = (String) ps.get('name');
-                        p.lap__c = Integer.valueOf((String) ps.get('lap'));
-                        p.stop__c = Integer.valueOf((String) ps.get('stop'));
-                        p.time__c = parseQuTime((String) ps.get('time'));
-                        //p.duration__c = Decimal.valueOf((String) ps.get('durationduration'));
-                        pitstopToInsert.add(p);
+                      
+                                pitstop__c p = new pitstop__c();
+                                p.Name = (String) ps.get('name');
+                                p.lap__c = Integer.valueOf((String) ps.get('lap'));
+                                p.stop__c = Integer.valueOf((String) ps.get('stop'));
+
+                                // Convertir time (formato HH:mm:ss)
+                                String timeVal = (String) ps.get('time');
+                                if (!String.isBlank(timeVal)) {
+                                    p.time__c = parsePitstopTime(timeVal); // Nuevo método
+                                }
+
+                                // Convertir duration (formato decimal)
+                                String durationVal = (String) ps.get('duration');
+                                if (!String.isBlank(durationVal)) {
+                                    p.duration__c = Decimal.valueOf(durationVal);
+                                }
+
+                                pitstopToInsert.add(p);
 
 
                     }
@@ -154,21 +166,17 @@ public static List<Map<String, Object>> givepitstop() {
                         
                 }
 
-                private static Time parseQuTime(String val) {
-                    if (String.isBlank(val)) return null;
+                
+                    private static Time parsePitstopTime(String val) {
+                        if (String.isBlank(val)) return null;
+                        List<String> parts = val.split(':');
+                        if (parts.size() != 3) return null; // HH:mm:ss
+                        Integer hours = Integer.valueOf(parts[0]);
+                        Integer minutes = Integer.valueOf(parts[1]);
+                        Integer seconds = Integer.valueOf(parts[2]);
+                        return Time.newInstance(hours, minutes, seconds, 0);
+                    }
 
-                    // Formato esperado: para la conversion de time
-                    List<String> minAndRest = val.split(':');
-                    if (minAndRest.size() != 2) return null;
-
-                    Integer minutes = Integer.valueOf(minAndRest[0]);
-
-                    List<String> secAndMs = minAndRest[1].split('\\.');
-                    Integer seconds = Integer.valueOf(secAndMs[0]);
-                    Integer millis = 0;
-
-                    return Time.newInstance(0, minutes, seconds, millis);
-                }
             
                 private static String buildDriverName(Map<String, Object> ds) {
                 String given = (String) ds.get('givenName');

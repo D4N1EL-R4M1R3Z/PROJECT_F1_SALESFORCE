@@ -161,6 +161,14 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>F1DataSyncBatch</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>F1DataSyncJob</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>ForgotPasswordController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -222,6 +230,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>SiteRegisterControllerTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ValueCalculatorService</apexClass>
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
@@ -441,31 +453,6 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>Circuito__c.Distancia_total__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Circuito__c.Fecha_de_carrera__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Circuito__c.Longitud_Km__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Circuito__c.Ubicacion__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Circuito__c.Vueltas__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>true</editable>
         <field>Contact.Languages__c</field>
         <readable>true</readable>
@@ -474,21 +461,6 @@
         <editable>true</editable>
         <field>Contact.Level__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Equipo_Fantasy__c.Nombre_Equipo__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Escuderia__c.Logo__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Escuderia__c.Victorias__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -542,7 +514,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Piloto__c.Nacionalidad__c</field>
+        <field>Team_Fantasy__c.Budget_Used__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -557,7 +529,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Team_Fantasy__c.Total_Points__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Team_Fantasy__c.Wins__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>circuit__c.Laps__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>circuit__c.Location__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>circuit__c.Race_Date__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -588,6 +580,26 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>constructor__c.Constructor_standing__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>constructor__c.Logo_URL__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>constructor__c.Total_Points__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>constructor__c.Value__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>constructor__c.Wins__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -662,7 +674,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>driver__c.Photo_URL__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>driver__c.Result__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>driver__c.Total_Points__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>driver__c.Value__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>driver__c.Wins__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -742,7 +774,22 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>driverstanding__c.points__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>driverstanding__c.position__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>driverstanding__c.url__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>driverstanding__c.wins__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -912,6 +959,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>result__c.Fastest_Lap__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>result__c.ResultKey__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>result__c.grid__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -1027,6 +1084,10 @@
     </fieldPermissions>
     <flowAccesses>
         <enabled>false</enabled>
+        <flow>Send_Email_Admin</flow>
+    </flowAccesses>
+    <flowAccesses>
+        <enabled>false</enabled>
         <flow>customer_satisfaction</flow>
     </flowAccesses>
     <flowAccesses>
@@ -1095,9 +1156,6 @@
     </layoutAssignments>
     <layoutAssignments>
         <layout>CaseMilestone-Case Milestone Layout</layout>
-    </layoutAssignments>
-    <layoutAssignments>
-        <layout>Circuito__c-Circuito Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>CommunityMemberLayout-Community Member Layout</layout>
@@ -1172,12 +1230,6 @@
         <layout>EntityMilestone-Object Milestone Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Equipo_Fantasy__c-Equipo Fantasy Layout</layout>
-    </layoutAssignments>
-    <layoutAssignments>
-        <layout>Escuderia__c-Escuderia Layout</layout>
-    </layoutAssignments>
-    <layoutAssignments>
         <layout>Event-Event Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
@@ -1188,6 +1240,9 @@
     </layoutAssignments>
     <layoutAssignments>
         <layout>FinanceTransaction-Finance Transaction Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>FlowRecord-Flow Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Global-Global Layout</layout>
@@ -1256,9 +1311,6 @@
         <layout>PaymentLineInvoice-Payment Line Invoice Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Piloto__c-Piloto Layout</layout>
-    </layoutAssignments>
-    <layoutAssignments>
         <layout>Pricebook2-Price Book Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
@@ -1284,9 +1336,6 @@
     </layoutAssignments>
     <layoutAssignments>
         <layout>ReportAnomalyEventStore-Report Anomaly Event Store Layout</layout>
-    </layoutAssignments>
-    <layoutAssignments>
-        <layout>Resultado_Carrera__c-Resultado Carrera Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Scorecard-Scorecard Layout</layout>
@@ -1385,13 +1434,7 @@
         <layout>driverstanding__c-Driver standing Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>editqar__c-editqar Layout</layout>
-    </layoutAssignments>
-    <layoutAssignments>
         <layout>lap__c-Lap Layout</layout>
-    </layoutAssignments>
-    <layoutAssignments>
-        <layout>pilot__c-pilot Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>pitstop__c-Pitstop Layout</layout>
@@ -1523,15 +1566,15 @@
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
+        <tab>constructorstanding__c</tab>
+        <visibility>Hidden</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
         <tab>driver__c</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
-        <tab>lap__c</tab>
-        <visibility>Hidden</visibility>
-    </tabVisibilities>
-    <tabVisibilities>
-        <tab>pitstop__c</tab>
+        <tab>driverstanding__c</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <tabVisibilities>
@@ -1540,6 +1583,10 @@
     </tabVisibilities>
     <tabVisibilities>
         <tab>result__c</tab>
+        <visibility>Hidden</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>sprint__c</tab>
         <visibility>Hidden</visibility>
     </tabVisibilities>
     <userLicense>Chatter Free</userLicense>

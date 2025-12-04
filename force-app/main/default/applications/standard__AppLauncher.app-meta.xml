@@ -13,6 +13,7 @@
     <tabs>result__c</tabs>
     <tabs>Team_Fantasy__c</tabs>
     <tabs>race__c</tabs>
-    <tabs>lap__c</tabs>
-    <tabs>pitstop__c</tabs>
+    <tabs>sprint__c</tabs>
+    <tabs>driverstanding__c</tabs>
+    <tabs>constructorstanding__c</tabs>
 </CustomApplication>

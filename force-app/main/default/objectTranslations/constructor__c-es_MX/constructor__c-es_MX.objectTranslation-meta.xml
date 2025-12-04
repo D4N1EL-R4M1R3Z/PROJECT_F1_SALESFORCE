@@ -9,4 +9,11 @@
         <value>Constructors</value>
     </caseValues>
     <gender>Feminine</gender>
+    <layouts>
+        <layout>constructor Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
 </CustomObjectTranslation>

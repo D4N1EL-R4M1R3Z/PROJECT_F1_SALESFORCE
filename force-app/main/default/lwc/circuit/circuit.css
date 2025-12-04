@@ -1,0 +1,50 @@
+:host {
+  display: block; /* hace que el componente ocupe todo el ancho disponible */
+}
+
+.content {
+  padding: 8px;
+  background: #ffffff;
+}
+
+.title {
+  margin: 4px 0;
+  color: #032d60;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.subtitle {
+  margin: 0 0 10px;
+  color: #54698d;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.btn {
+  text-decoration: none;
+  background: #f4f6f9;
+  color: #1f2d3d;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid #e5e5e5;
+}
+
+.btn.primary {
+  background: #0176d3;
+  color: #fff;
+  border-color: #0176d3;
+}
+
+/* Marcador para validar el CSS */
+.test-style {
+  border: 2px dashed red;
+  padding: 6px;
+  margin-top: 10px;
+}
