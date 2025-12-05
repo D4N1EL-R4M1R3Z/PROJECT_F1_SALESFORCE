@@ -1,5 +1,4 @@
-public with sharing class pitstop {
-    
+public with sharing class pitstop { 
 @AuraEnabled(cacheable=true)
 public static List<Map<String, Object>> givepitstop() {
     List<Map<String, Object>> result = new List<Map<String, Object>>();
@@ -7,7 +6,7 @@ public static List<Map<String, Object>> givepitstop() {
     try {
         Http http = new Http();
         HttpRequest req = new HttpRequest();
-        req.setEndpoint('callout:pilotos2/ergast/f1/2025/1/pitstops.json'); // Named Credential
+        req.setEndpoint('callout:pilotos2/ergast/f1/2024/1/pitstops.json'); // Named Credential
         req.setMethod('GET');
 
         HttpResponse res = http.send(req);

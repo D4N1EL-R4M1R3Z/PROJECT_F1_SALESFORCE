@@ -7,7 +7,7 @@ public with sharing class sprint {
         try {
             Http http = new Http();
             HttpRequest req = new HttpRequest();
-            req.setEndpoint('callout:pilotos2/ergast/f1/2025/sprint.json');
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/sprint.json');
             req.setMethod('GET');
 
             HttpResponse res = http.send(req);

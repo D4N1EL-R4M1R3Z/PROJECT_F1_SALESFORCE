@@ -72,7 +72,7 @@ public with sharing class driver
         try {
             Http http = new Http();
             HttpRequest req = new HttpRequest();
-            req.setEndpoint('callout:pilotos2/ergast/f1/2025/results.json'); // Ajusta Named Credential si cambia
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/results.json'); // Ajusta Named Credential si cambia
             req.setMethod('GET');
 
             HttpResponse res = http.send(req);

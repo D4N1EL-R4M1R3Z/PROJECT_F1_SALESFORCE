@@ -7,7 +7,7 @@ public with sharing class qualifying {
         try {
             Http http = new Http();
             HttpRequest req = new HttpRequest();
-            req.setEndpoint('callout:pilotos2/ergast/f1/2025/qualifying.json');
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/qualifying.json');
             req.setMethod('GET');
 
             HttpResponse res = http.send(req);

@@ -1,0 +1,3734 @@
+global class actualizarCircuitJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        circuitBatch batch = new circuitBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarconstructorJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        constructorBatch batch = new constructorBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarConstructorstandingJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        constructorstandingBatch batch = new constructorstandingBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarDriverJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        driverBatch batch = new driverBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarDriverstadingJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        driverstadingBatch batch = new driverstadingBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarLapJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        lapBatch batch = new lapBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarPitstopJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        pitstopBatch batch = new pitstopBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarQualifyingJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        qualifyingBatch batch = new qualifyingBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarRaceJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        raceBatch batch = new raceBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarRestulsJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        resultsBatch batch = new resultsBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarSeasonJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        seasonBatch batch = new seasonBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarSprintJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        sprintBatch batch = new sprintBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+global class actualizarStatusJob implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // Llama al batch que sí permite callouts
+        statusBatch batch = new statusBatch();
+        Database.executeBatch(batch, 1); // tamaño de lote mínimo
+    }
+}
+
+/**
+ * An apex page controller that exposes the change password functionality
+ */
+public with sharing class ChangePasswordController {
+    public String oldPassword {get; set;}
+    public String newPassword {get; set;}
+    public String verifyNewPassword {get; set;}        
+    
+    public PageReference changePassword() {
+        return Site.changePassword(newPassword, verifyNewPassword, oldpassword);    
+    }     
+    
+   	public ChangePasswordController() {}
+}
+
+/**
+ * An apex page controller that exposes the change password functionality
+ */
+@IsTest public with sharing class ChangePasswordControllerTest {
+   	@IsTest(SeeAllData=true) public static void testChangePasswordController() {
+        // Instantiate a new controller with all parameters in the page
+        ChangePasswordController controller = new ChangePasswordController();
+        controller.oldPassword = '123456';
+        controller.newPassword = 'qwerty1'; 
+        controller.verifyNewPassword = 'qwerty1';                
+        
+        System.assertEquals(controller.changePassword(),null);                           
+    }    
+}
+
+public with sharing class circuit {
+    @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> giveCircuits() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/circuits.json'); // se coloca la direccion Url de la api en forma de callout
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+
+            if (res.getStatusCode() == 200) {
+                // Deserializamos la respuesta usando como modelado deserializeUntyped el cual reliza la 
+                //extracion en la misma pagina sin necesida de asociado dentro de las classes
+                Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
+                Map<String, Object> circuitTable = (Map<String, Object>) mrData.get('CircuitTable');
+                List<Object> circuitsList = (List<Object>) circuitTable.get('Circuits');
+
+                for (Object obj : circuitsList) {
+                    Map<String, Object> circuit = (Map<String, Object>) obj;
+                    Map<String, Object> location = (Map<String, Object>) circuit.get('Location');
+
+                    Map<String, Object> row = new Map<String, Object>();
+                    row.put('circuitId', circuit.get('circuitId'));
+                    row.put('circuitName', circuit.get('circuitName'));
+                    row.put('url', circuit.get('url'));
+
+                    if (location != null) {
+                        row.put('lat', location.get('lat'));
+                        row.put('long', location.get('long'));
+                        row.put('locality', location.get('locality'));
+                        row.put('country', location.get('country'));
+                    }
+
+                    result.add(row);
+                }
+            } else {
+                System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.debug('Excepción en obtenerCircuits: ' + e.getMessage());
+        }
+
+        return result;
+    }
+        // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+            @AuraEnabled
+            public static void saveCircuits() {
+                List<Map<String, Object>> circuitsData = giveCircuits();
+                List<circuit__c> circuitsToInsert = new List<circuit__c>();
+
+                for (Map<String, Object> ds : circuitsData) {
+                    circuit__c c = new circuit__c();
+                    c.Name = (String) ds.get('circuitName');
+                    //c.circuitName__c = (String) ds.get('circuitName'); 
+                    c.circuitId__c = (String) ds.get('circuitId');
+                    c.url__c = (String) ds.get('url');
+
+                    if (ds.get('lat') != null) {
+                        c.Location__Latitude__s = Decimal.valueOf(String.valueOf(ds.get('lat')));
+                    }
+                    if (ds.get('long') != null) {
+                        c.Location__Longitude__s = Decimal.valueOf(String.valueOf(ds.get('long')));
+                    }
+                    c.locality__c = (String) ds.get('locality');
+                    c.country__c = (String) ds.get('country');
+
+                    circuitsToInsert.add(c);
+                }
+                    // enn este apartado utilizamos un debug para mirar cuando datos inserto dentro de salesforce usando Developer Consol
+                if (!circuitsToInsert.isEmpty()) {
+                    Database.insert(circuitsToInsert, false);
+                    System.debug('Registros insertados: ' + circuitsToInsert.size());
+                }
+            }
+}
+
+global class circuitBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            List<Map<String, Object>> circuitsData = circuit.giveCircuits();
+            System.debug('Cantidad de circuitos obtenidos: ' + circuitsData.size());
+
+            List<circuit__c> circuitsToUpsert = new List<circuit__c>();
+
+            for (Map<String, Object> ds : circuitsData) {
+                circuit__c c = new circuit__c();
+                c.Name = (String) ds.get('circuitName'); // Usamos Name como etiqueta
+                c.circuitId__c = (String) ds.get('circuitId'); // External Id
+                c.url__c = (String) ds.get('url');
+
+                // Conversión segura para lat/long
+                if (ds.get('lat') != null) {
+                    c.Location__Latitude__s = Decimal.valueOf(String.valueOf(ds.get('lat')));
+                }
+                if (ds.get('long') != null) {
+                    c.Location__Longitude__s = Decimal.valueOf(String.valueOf(ds.get('long')));
+                }
+
+                c.locality__c = (String) ds.get('locality');
+                c.country__c = (String) ds.get('country');
+
+                circuitsToUpsert.add(c);
+            }
+
+            // ✅ Upsert usando External Id circuitId__c (evita duplicados)
+            if (!circuitsToUpsert.isEmpty()) {
+                Database.UpsertResult[] results = Database.upsert(circuitsToUpsert, circuit__c.Fields.circuitId__c, false);
+
+                Integer successCount = 0;
+                for (Database.UpsertResult r : results) {
+                    if (r.isSuccess()) {
+                        successCount++;
+                    } else {
+                        System.debug('Error al upsert: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+                System.debug('Circuitos procesados: ' + successCount);
+            } else {
+                System.debug('No se encontraron circuitos para procesar.');
+            }
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch finalizado.');
+    }
+}
+
+public with sharing class  constructor {
+
+    @AuraEnabled
+    public static List<Map<String, Object>> givenConstructors() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/constructors.json'); // se coloca la direccion Url de la api en forma de callout
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+
+            if (res.getStatusCode() == 200) {
+                // Deserializamos la respuesta usando como modelado el wapper asociado dentro de las classes
+                constructorWrapper.root data = (constructorWrapper.root) JSON.deserialize(res.getBody(), constructorWrapper.root.class);
+
+                if (data != null && data.MRData != null && data.MRData.constructorTable != null &&
+                    data.MRData.constructorTable.constructors != null && !data.MRData.constructorTable.constructors.isEmpty()) {
+
+                 
+                    for (constructorWrapper.constructor cons : data.MRData.constructorTable.constructors) {
+                        Map<String,Object> row = new Map<String,Object>();
+                        row.put('constructorId', cons.constructorId);
+                        row.put('url', cons.url);
+                        row.put('name', cons.name);
+                        row.put('nationality', cons.nationality);
+                        result.add(row);
+                    }
+
+                }
+            } else {
+                System.debug('Error en el callout: ' + res.getStatus());
+            }
+        } catch (Exception e) {
+            System.debug('Excepción: ' + e.getMessage());
+        }
+
+        return result;
+    }
+        // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+
+            @AuraEnabled
+            public static void saveConstructors() {
+                List<Map<String,Object>> constructorTable = givenConstructors();
+                List<constructor__c> constructorToInsert = new List<constructor__c>();
+
+                for (Map<String,Object> cons : constructorTable) {
+                    constructor__c constObj = new constructor__c();
+                    constObj.Name = (String) cons.get('name');
+                    constObj.constructorId__c = (String) cons.get('constructorId');
+                    constObj.url__c = (String) cons.get('url');
+                    constObj.name__c = (String) cons.get('name');
+                    constObj.nationality__c = (String) cons.get('nationality');
+                    constructorToInsert.add(constObj);
+                }
+
+                if (!constructorToInsert.isEmpty()) {
+                    insert constructorToInsert;
+                }
+            }
+}
+
+global class constructorBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // Obtener datos desde la API
+            List<Map<String, Object>> constructorData =  constructor.givenConstructors();
+            System.debug('Cantidad de constructores obtenidos: ' + constructorData.size());
+
+            List<constructor__c> constructorsToUpsert = new List<constructor__c>();
+
+            for (Map<String, Object> cons : constructorData) {
+                constructor__c constObj = new constructor__c();
+                constObj.Name = (String) cons.get('name');
+                constObj.constructorId__c = (String) cons.get('constructorId');
+                constObj.url__c = (String) cons.get('url');
+                constObj.name__c = (String) cons.get('name');
+                constObj.nationality__c = (String) cons.get('nationality');
+
+                constructorsToUpsert.add(constObj);
+            }
+
+            // Upsert usando External Id constructorId__c
+            Database.UpsertResult[] results = Database.upsert(constructorsToUpsert, constructor__c.Fields.constructorId__c, false);
+
+            for (Database.UpsertResult r : results) {
+                if (!r.isSuccess()) {
+                    System.debug('Error al upsert: ' + r.getErrors()[0].getMessage());
+                }
+            }
+
+            System.debug('Constructores procesados: ' + constructorsToUpsert.size());
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch finalizado.');
+    }
+}
+
+public with sharing class constructorstanding {
+    @AuraEnabled
+    public static List<Map<String, Object>> givenconstructorstanding() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/constructorstandings.json'); //se coloca la direccion Url de la api en forma de callout
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+            
+                // se comienza a realizar el modelado usando un Wrapper anteriormente creado para pode abstraer la informacion de la Api
+
+                    if (res.getStatusCode() == 200) {
+                        ConstructorStandingWrapper.Root data = (ConstructorStandingWrapper.root)
+                            JSON.deserialize(res.getBody(), ConstructorStandingWrapper.root.class);
+
+                        if (data != null && data.MRData != null && data.MRData.StandingsTable != null &&
+                            data.MRData.StandingsTable.StandingsLists != null && !data.MRData.StandingsTable.StandingsLists.isEmpty()) {
+
+                            for (ConstructorStandingWrapper.StandingsLists constd : data.MRData.StandingsTable.StandingsLists) {
+                                if (constd.ConstructorStandings != null && !constd.ConstructorStandings.isEmpty()) {
+                                    for (ConstructorStandingWrapper.ConstructorStandings consStanding : constd.ConstructorStandings) {
+                                        if (consStanding.Constructor != null) {
+                                            Map<String, Object> row = new Map<String, Object>();
+                                            row.put('constructorId', consStanding.Constructor.constructorId);
+                                            row.put('url', consStanding.Constructor.url);
+                                            row.put('name', consStanding.Constructor.name);
+                                            row.put('nationality', consStanding.Constructor.nationality);
+                                            row.put('position', consStanding.position);
+                                            row.put('positionText', consStanding.positionText);
+                                            row.put('points', consStanding.points);
+                                            row.put('wins', consStanding.wins);
+                                            row.put('season', constd.season);
+                                            row.put('round', constd.round);
+
+                                            result.add(row);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        System.debug('Error en el callout: ' + res.getStatus());
+                    }
+
+            
+        } catch (Exception e) {
+            System.debug('Excepción: ' + e.getMessage());
+        }
+
+        return result;
+    }
+
+    // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+
+                @AuraEnabled
+                public static void saveconstructorstanding() {
+                    List<Map<String,Object>> constructorTable = givenconstructorstanding();
+                    List<constructorstanding__c> constructorstandingToInsert = new List<constructorstanding__c>();
+
+                    for (Map<String,Object> cons : constructorTable) {
+                        constructorstanding__c constStad = new constructorstanding__c();
+                        constStad.Name = (String) cons.get('name');
+                        constStad.constructorId__c = (String) cons.get('constructorId');
+                        constStad.url__c = (String) cons.get('url'); 
+                        constStad.Name = (String) cons.get('name');
+                        constStad.nationality__c = (String) cons.get('nationality');
+                        constStad.positionText__c = cons.get('positionText') != null ? Integer.valueOf(String.valueOf(cons.get('positionText'))) : null;
+                        constStad.position__c = cons.get('position') != null ? Integer.valueOf(String.valueOf(cons.get('position'))) : null;    
+                        constStad.points__c = cons.get('points') != null ? Integer.valueOf(String.valueOf(cons.get('points'))) : null;
+                        //constStad.positionText__c = (Integer) cons.get('positionText');
+                        //constStad.position__c = (Integer) cons.get('position');
+                       // constStad.points__c = (Integer) cons.get('points');
+                       constStad.season__c = cons.get('season') != null ? Integer.valueOf(String.valueOf(cons.get('season'))) : null;    
+                         constStad.round__c = cons.get('round') != null ? Integer.valueOf(String.valueOf(cons.get('round'))) : null;
+                       constStad.wins__c = (String) cons.get('wins');
+                       // constStad.season__c = (Integer) cons.get('season');
+                      //  constStad.round__c = (Integer) cons.get('round');
+                        constructorstandingToInsert.add(constStad);
+                    }
+                    if (!constructorstandingToInsert.isEmpty()) {
+                        Database.insert(constructorstandingToInsert, false);
+                        System.debug('Registros insertados: ' + constructorstandingToInsert.size());
+                }
+                }
+}
+
+global class constructorstandingBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // 1. Obtener datos desde la API
+            List<Map<String, Object>> constructorStandingData = constructorStanding.givenconstructorstanding();
+            System.debug('Cantidad de constructor standings obtenidos: ' + constructorStandingData.size());
+
+            if (constructorStandingData.isEmpty()) {
+                System.debug('No hay constructor standings para procesar.');
+                return;
+            }
+
+            // 2. Preparar listas
+            List<constructorstanding__c> standingsToUpsert = new List<constructorstanding__c>();
+            List<Constructor__c> constructorsToUpdate = new List<Constructor__c>();
+
+            // 3. Procesar cada registro
+            for (Map<String, Object> cons : constructorStandingData) {
+                String constructorId = (String) cons.get('constructorId');
+                
+                // ========== CREAR REGISTRO EN constructorstanding__c ==========
+                constructorstanding__c constStad = new constructorstanding__c();
+                constStad.Name = (String) cons.get('name');
+                constStad.constructorId__c = constructorId;
+                constStad.url__c = (String) cons.get('url');
+                constStad.nationality__c = (String) cons.get('nationality');
+                constStad.positionText__c = toInteger(cons.get('positionText'));
+                constStad.position__c = toInteger(cons.get('position'));
+                constStad.points__c = toInteger(cons.get('points'));
+                constStad.wins__c = String.valueOf(cons.get('wins')); // Si es String en tu objeto
+                constStad.season__c = toInteger(cons.get('season'));
+                constStad.round__c = toInteger(cons.get('round'));
+                
+                standingsToUpsert.add(constStad);
+
+                // ========== ACTUALIZAR Constructor__c CON WINS Y POINTS ==========
+                Constructor__c constructor = new Constructor__c();
+                constructor.constructorId__c = constructorId; // External ID para upsert
+                
+                // Campos nuevos
+                constructor.Wins__c = toInteger(cons.get('wins'));
+                constructor.Total_Points__c = toInteger(cons.get('points'));
+                
+                constructorsToUpdate.add(constructor);
+            }
+
+            // 4. Upsert constructorstanding__c
+            if (!standingsToUpsert.isEmpty()) {
+                Database.UpsertResult[] standingResults = Database.upsert(standingsToUpsert, constructorstanding__c.Fields.constructorId__c, false);
+                
+                Integer ok = 0, fail = 0;
+                for (Database.UpsertResult r : standingResults) {
+                    if (r.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        System.debug('Error al upsert constructorstanding: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+                System.debug('Constructor standings procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
+            }
+
+            // 5. Upsert Constructor__c (actualizar Wins y Points)
+            if (!constructorsToUpdate.isEmpty()) {
+                Database.UpsertResult[] constructorResults = Database.upsert(constructorsToUpdate, Constructor__c.Fields.constructorId__c, false);
+                
+                Integer ok = 0, fail = 0;
+                for (Database.UpsertResult r : constructorResults) {
+                    if (r.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        System.debug('Error al actualizar Constructor: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+                System.debug('Constructors actualizados con Wins/Points. Éxitos: ' + ok + ', Fallos: ' + fail);
+            }
+
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage() + ' - ' + e.getStackTraceString());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch de Constructor Standings finalizado.');
+    }
+
+    // Helper para conversión segura
+    private static Integer toInteger(Object val) {
+        if (val == null) return null;
+        try {
+            return Integer.valueOf(String.valueOf(val));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
+
+public with sharing class constructorstandingWrapper {
+  
+    public class root
+    {
+        public MRData MRData {set; get;}
+    }
+    public class MRData 
+    {
+        public StandingsTable StandingsTable {set; get;}
+    }
+    public class StandingsTable 
+    {
+        public String season {set; get;}
+        public String round {set; get;}
+        public List<StandingsLists> StandingsLists {set; get;}
+    }
+    public class StandingsLists
+    {
+        public String season {set; get;}
+        public String round {set; get;}
+        public List<ConstructorStandings> ConstructorStandings {set; get;}
+    }
+    public class ConstructorStandings
+    {
+        public String position {set; get;}
+        public String positionText {set; get;}
+        public String points {set; get;}
+        public String wins {set; get;}
+        public Constructor Constructor {set; get;}
+    }
+    public class Constructor{
+        
+        public String constructorId {get; set;}
+        public String url {get; set;}
+        public String name {get; set;}
+        public String nationality {get; set;}
+    }
+   
+}
+
+public with sharing class constructorWrapper {
+    public class root{
+        public MRData MRData {set; get;}
+    }
+    public class MRData{
+    
+        public constructorTable constructorTable {set; get;}
+    }
+    public class  constructorTable{
+
+        public String season {set; get;}
+        public List<constructor> constructors {set; get;}
+    }
+    public class constructor{
+        public String constructorId {set; get;}
+        public String url {set; get;}
+        public String name {set; get;}
+        public String nationality {set; get;}
+    }
+}
+
+public with sharing class driver 
+{
+/**
+ * =====================================================
+ * Calculo de Valor de Drivers
+ * =====================================================
+ * Servicio para calcular y asignar Value__c a Drivers
+ * basado en su rendimiento (puntos y victorias).
+ 
+ * USO:
+ *   ValueCalculatorService.calculateDriverValues();   // Solo Drivers
+ *   ValueCalculatorService.calculateConstructorValues(); // Solo Constructors
+ 
+ * FÓRMULA:
+ *   Value = Base + (Points * factor) + (Wins * bonus)
+ * =====================================================
+ */
+    // ###############################################################
+    //  Método que consume la API de drivers y devuelve un List<Map>
+    //  *** NO toca constructor aquí porque /drivers.json no lo trae. ***
+    // ###############################################################
+    @AuraEnabled
+    public static List<Map<String, Object>> givenDriver() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/drivers.json'); // se coloca la direccion Url de la api en forma de callout
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+
+            // se comienza a realizar el modelado usando un Wrapper anteriormente creado
+            if (res.getStatusCode() == 200) {
+                driverWrapper.root data = (driverWrapper.root) JSON.deserialize(res.getBody(), driverWrapper.root.class);
+
+                if (data != null && data.MRData != null && data.MRData.DriverTable != null &&
+                    data.MRData.DriverTable.drivers != null && !data.MRData.DriverTable.drivers.isEmpty()) {
+
+                    for (driverWrapper.Driver dr : data.MRData.DriverTable.drivers) {
+                        Map<String,Object> row = new Map<String,Object>();
+                        row.put('driverId', dr.driverId);
+                        row.put('permanentNumber', dr.permanentNumber);
+                        row.put('code', dr.code);
+                        row.put('url', dr.url);
+                        row.put('givenName', dr.givenName);
+                        row.put('familyName', dr.familyName);
+                        row.put('dateOfBirth', dr.dateOfBirth);
+                        row.put('nationality', dr.nationality);
+                        // NOTA: aquí NO viene constructor en /drivers.json
+                        result.add(row);
+                    }
+                }
+            } else {
+                System.debug('Error en el callout: ' + res.getStatus());
+            }
+        } catch (Exception e) {
+            System.debug('Excepción: ' + e.getMessage());
+        }
+
+        return result;
+    }
+
+    // ##################################################################
+    //  NUEVO: Método auxiliar para mapear driverId -> constructorId
+    //  Fuente: /results.json, igual que tu clase result
+    // ##################################################################
+    public static Map<String, String> getDriverConstructorMap() {
+        Map<String, String> driverConstructorMap = new Map<String, String>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/2025/results.json'); // Ajusta Named Credential si cambia
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+
+            if (res.getStatusCode() == 200) {
+                Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
+                Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+                List<Object> racesList = (List<Object>) raceTable.get('Races');
+
+                if (racesList != null) {
+                    for (Object raceObj : racesList) {
+                        Map<String, Object> raceMap = (Map<String, Object>) raceObj;
+                        List<Object> resultsList = (List<Object>) raceMap.get('Results');
+
+                        if (resultsList != null) {
+                            for (Object resObj : resultsList) {
+                                Map<String, Object> resMap = (Map<String, Object>) resObj;
+
+                                Map<String, Object> driverMap = (Map<String, Object>) resMap.get('Driver');
+                                Map<String, Object> constructorMap = (Map<String, Object>) resMap.get('Constructor');
+
+                                if (driverMap != null && constructorMap != null) {
+                                    String driverId = (String) driverMap.get('driverId');
+                                    String constructorId = (String) constructorMap.get('constructorId');
+
+                                    // Si hay varios resultados del mismo driver en la temporada,
+                                    // este mapa se irá "actualizando". Si prefieres conservar el primero, verifica antes:
+                                    // if (!driverConstructorMap.containsKey(driverId)) { ... }
+
+                                    driverConstructorMap.put(driverId, constructorId);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                System.debug('Error en callout /results.json: ' + res.getStatus());
+            }
+        } catch (Exception e) {
+            System.debug('Error en getDriverConstructorMap: ' + e.getMessage());
+        }
+
+        return driverConstructorMap;
+    }
+
+    // ##################################################################
+    //  Guardado en objeto Driver__c
+    //  Se mantiene tu estructura. Aquí sí asignamos constructor__c.
+    // ##################################################################
+    @AuraEnabled
+    public static void saveDrivers() {
+        List<Map<String,Object>> standings = givenDriver();
+
+        // NUEVO: obtenemos el mapa driverId -> constructorId
+        Map<String, String> driverConstructorMap = getDriverConstructorMap();
+
+        List<Driver__c> driversToInsert = new List<Driver__c>();
+
+        for (Map<String,Object> ds : standings) {
+            Driver__c d = new Driver__c();
+
+            d.Name = (String) ds.get('givenName') + ' ' + (String) ds.get('familyName');
+            d.driverId__c = (String) ds.get('driverId');
+            d.givenName__c = (String) ds.get('givenName');
+            d.familyName__c = (String) ds.get('familyName');
+
+            // Manejo seguro de fecha desde API (string ISO) -> Date
+            d.dateOfBirth__c = ds.get('dateOfBirth') != null ? Date.valueOf((DATE) ds.get('dateOfBirth')) : null;
+
+            d.nationality__c = (String) ds.get('nationality');
+            d.url__c = (String) ds.get('url');
+            d.code__c = (String) ds.get('code');
+            d.permanentNumber__c = ds.get('permanentNumber') != null
+                ? Integer.valueOf(String.valueOf(ds.get('permanentNumber')))
+                : null;
+
+            // --------------- NUEVO: asignar constructor ---------------
+            // Si el campo Driver__c.constructor__c es TEXT (almacenamos constructorId):
+            String driverId = (String) ds.get('driverId');
+            if (driverConstructorMap.containsKey(driverId)) {
+                d.constructor__c = driverConstructorMap.get(driverId);
+            }
+
+            driversToInsert.add(d);
+        }
+
+        insert driversToInsert;
+    }
+
+}
+
+global class driverBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // Obtener datos desde la API
+            List<Map<String, Object>> driverData =  driver.givenDriver();
+            System.debug('Cantidad de constructores obtenidos: ' + driverData.size());
+
+            List<Driver__c> driversToInsert = new List<Driver__c>();
+            Map<String, String> driverConstructorMap = driver.getDriverConstructorMap();
+                 for (Map<String,Object> ds : driverData) {
+                            Driver__c d = new Driver__c();
+                            d.Name = (String) ds.get('givenName') + ' ' + (String) ds.get('familyName');
+                            d.driverId__c = (String) ds.get('driverId');
+                            d.givenName__c = (String) ds.get('givenName');
+                            d.familyName__c = (String) ds.get('familyName');
+                            d.dateOfBirth__c = ds.get('dateOfBirth') != null ? Date.valueOf((DATE) ds.get('dateOfBirth')) : null;
+                            d.nationality__c = (String) ds.get('nationality');
+                            d.url__c = (String) ds.get('url');
+                            d.code__c = (String) ds.get('code');
+                            d.permanentNumber__c = ds.get('permanentNumber') != null ? Integer.valueOf(String.valueOf(ds.get('permanentNumber'))) : null;
+
+                            String driverId = (String) ds.get('driverId');
+                            if (driverConstructorMap.containsKey(driverId)) {
+                                d.constructor__c = driverConstructorMap.get(driverId); // Si tu campo es TEXT
+                            }
+                      
+                            driversToInsert.add(d);
+                        }
+
+            // Upsert usando External Id constructorId__c
+            Database.UpsertResult[] results = Database.upsert(driversToInsert, Driver__c.Fields.driverId__c, false);
+
+            for (Database.UpsertResult r : results) {
+                if (!r.isSuccess()) {
+                    System.debug('Error al upsert: ' + r.getErrors()[0].getMessage());
+                }
+            }
+
+            System.debug('Constructores procesados: ' + driversToInsert.size());
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch finalizado.');
+    }
+}
+
+global class driverstadingBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // 1. Obtener datos desde la API
+            List<Map<String, Object>> standings = driverstanding.obtenerClasificacion();
+            System.debug('Cantidad de driver standings obtenidos: ' + standings.size());
+
+            if (standings.isEmpty()) {
+                System.debug('No hay driver standings para procesar.');
+                return;
+            }
+
+            // 2. Preparar listas
+            List<driverstanding__c> standingsToInsert = new List<driverstanding__c>();
+            List<Driver__c> driversToUpdate = new List<Driver__c>();
+            Set<String> constructorIds = new Set<String>();
+
+            // 3. Extraer constructorIds para buscar los Ids reales
+            for (Map<String, Object> ds : standings) {
+                // La API de driverstandings trae Constructors como lista
+                List<Object> constructors = (List<Object>) ds.get('Constructors');
+                if (constructors != null && !constructors.isEmpty()) {
+                    Map<String, Object> firstConstructor = (Map<String, Object>) constructors[0];
+                    String constructorId = (String) firstConstructor.get('constructorId');
+                    if (String.isNotBlank(constructorId)) {
+                        constructorIds.add(constructorId.trim().toLowerCase());
+                    }
+                }
+            }
+
+            // 4. Consultar Constructor__c para obtener Ids reales (para el Lookup)
+            Map<String, Id> constructorMap = new Map<String, Id>();
+            if (!constructorIds.isEmpty()) {
+                for (Constructor__c c : [SELECT Id, constructorId__c FROM Constructor__c WHERE constructorId__c IN :constructorIds]) {
+                    constructorMap.put(c.constructorId__c.trim().toLowerCase(), c.Id);
+                }
+            }
+            System.debug('constructorMap: ' + constructorMap);
+
+            // 5. Procesar cada registro
+            for (Map<String, Object> ds : standings) {
+                String driverId = (String) ds.get('driverId');
+                
+                // ========== CREAR REGISTRO EN driverstanding__c ==========
+                driverstanding__c standing = new driverstanding__c();
+                standing.Name = (String) ds.get('givenName') + ' ' + (String) ds.get('familyName');
+                standing.driverId__c = driverId;
+                standing.givenName__c = (String) ds.get('givenName');
+                standing.familyName__c = (String) ds.get('familyName');
+                standing.dateOfBirth__c = ds.get('dateOfBirth') != null ? Date.valueOf((String) ds.get('dateOfBirth')) : null;
+                standing.nationality__c = (String) ds.get('nationality');
+                standing.url__c = (String) ds.get('url');
+                standing.code__c = (String) ds.get('code');
+                standing.permanentNumber__c = toInteger(ds.get('permanentNumber'));
+                standing.position__c = toInteger(ds.get('position'));
+                standing.points__c = toInteger(ds.get('points'));
+                standing.wins__c = toInteger(ds.get('wins'));
+                
+                standingsToInsert.add(standing);
+
+                // ========== ACTUALIZAR Driver__c CON WINS, POINTS Y CONSTRUCTOR ==========
+                Driver__c driver = new Driver__c();
+                driver.driverId__c = driverId; // External ID para upsert
+                
+                // Campos nuevos
+                driver.Wins__c = toInteger(ds.get('wins'));
+                driver.Total_Points__c = toInteger(ds.get('points'));
+                
+                // Constructor Lookup - buscar el Id real
+                List<Object> constructors = (List<Object>) ds.get('Constructors');
+                if (constructors != null && !constructors.isEmpty()) {
+                    Map<String, Object> firstConstructor = (Map<String, Object>) constructors[0];
+                    String constructorId = (String) firstConstructor.get('constructorId');
+                    if (String.isNotBlank(constructorId)) {
+                        Id constructorSfId = constructorMap.get(constructorId.trim().toLowerCase());
+                        if (constructorSfId != null) {
+                            driver.Constructor__c = constructorSfId;
+                        }
+                    }
+                }
+                
+                driversToUpdate.add(driver);
+            }
+
+            // 6. Upsert driverstanding__c
+            if (!standingsToInsert.isEmpty()) {
+                Database.UpsertResult[] standingResults = Database.upsert(standingsToInsert, driverstanding__c.Fields.driverId__c, false);
+                
+                Integer ok = 0, fail = 0;
+                for (Database.UpsertResult r : standingResults) {
+                    if (r.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        System.debug('Error al upsert driverstanding: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+                System.debug('Driver standings procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
+            }
+
+            // 7. Upsert Driver__c (actualizar Wins, Points, Constructor)
+            if (!driversToUpdate.isEmpty()) {
+                Database.UpsertResult[] driverResults = Database.upsert(driversToUpdate, Driver__c.Fields.driverId__c, false);
+                
+                Integer ok = 0, fail = 0;
+                for (Database.UpsertResult r : driverResults) {
+                    if (r.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        System.debug('Error al actualizar Driver: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+                System.debug('Drivers actualizados con Wins/Points/Constructor. Éxitos: ' + ok + ', Fallos: ' + fail);
+            }
+
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage() + ' - ' + e.getStackTraceString());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch de Driver Standings finalizado.');
+    }
+
+    // Helper para conversión segura
+    private static Integer toInteger(Object val) {
+        if (val == null) return null;
+        try {
+            return Integer.valueOf(String.valueOf(val));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
+
+public with sharing class driverstanding {
+   @AuraEnabled(cacheable=true)
+    public static List<Map<String,Object>> obtenerClasificacion() {
+        Http http = new Http();
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('callout:pilotos2/ergast/f1/2024/driverstandings.json'); // se coloca la direccion Url de la api en forma de callout
+        req.setMethod('GET');
+
+        HttpResponse res = http.send(req);
+
+        // 🔍 Debug para verificar la respuesta del API
+        System.debug('Status Code: ' + res.getStatusCode());
+        System.debug('Respuesta completa: ' + res.getBody());
+
+        List<Map<String,Object>> result = new List<Map<String,Object>>();
+
+                    if (res.getStatusCode() == 200) {
+                        try {
+                            
+                        // se comienza a realizar el modelado usando un Wrapper anteriormente creado para pode abstraer la informacion de la Api
+                            driverstandingWrapper.root data = (driverstandingWrapper.root) JSON.deserialize(res.getBody(), driverstandingWrapper.root.class);
+
+                            if (data != null && data.MRData != null && data.MRData.StandingsTable != null &&
+                                data.MRData.StandingsTable.StandingsLists != null && !data.MRData.StandingsTable.StandingsLists.isEmpty()) {
+
+                                for (driverstandingWrapper.DriverStandings ds : data.MRData.StandingsTable.StandingsLists[0].DriverStandings) {
+                                    Map<String,Object> row = new Map<String,Object>();
+                                    row.put('driverId', ds.Driver.DriverId);
+                                    row.put('givenName', ds.Driver.givenName);
+                                    row.put('familyName', ds.Driver.familyName);
+                                    row.put('dateOfBirth', ds.Driver.dateOfBirth);
+                                    row.put('nationality', ds.Driver.nationality);
+                                    row.put('url', ds.Driver.url);
+                                    row.put('code', ds.Driver.code);
+                                    row.put('permanentNumber', ds.Driver.permanentNumber);
+                                    row.put('position', ds.position);
+                                    row.put('points', ds.points);
+                                    row.put('wins', ds.wins);
+                                    result.add(row);
+                                }
+                            }
+                        } catch (Exception e){
+                            System.debug('Error con Wrapper, usando parseo dinámico: ' + e.getMessage());
+                        }
+                    }
+                    return result;
+    }
+
+
+                // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+                
+                @AuraEnabled
+                public static void guardarDrivers() {
+                    List<Map<String,Object>> standings = obtenerClasificacion();
+                    List<driverstanding__c> driversToInsert = new List<driverstanding__c>();
+
+                    for (Map<String,Object> ds : standings) {
+                        driverstanding__c d = new driverstanding__c();
+                        d.Name = (String) ds.get('givenName') + ' ' + (String) ds.get('familyName');
+                       // d.driverId__c = (String) ds.get('driverId');
+                        d.givenName__c = (String) ds.get('givenName');
+                        d.familyName__c = (String) ds.get('familyName');
+                        d.dateOfBirth__c = ds.get('dateOfBirth') != null ? Date.valueOf((String) ds.get('dateOfBirth')) : null;
+                        d.nationality__c = (String) ds.get('nationality');
+                        d.url__c = (String) ds.get('url');
+                        d.code__c = (String) ds.get('code');
+                        d.permanentNumber__c = ds.get('permanentNumber') != null ? Integer.valueOf(String.valueOf(ds.get('permanentNumber'))) : null;
+                        driversToInsert.add(d);
+                    }
+                    insert driversToInsert;
+                }
+}
+
+// Se realizo la creacion de el Wrapper con base en la estructura de el Json y como este tiene
+// Codificado la informacion
+
+public class driverstandingWrapper {
+    public class root {
+        public MRData MRData;
+    }
+    public class MRData{
+        public StandingsTable StandingsTable { get; set; }
+    }
+    public class StandingsTable{
+        public List<StandingsLists> StandingsLists { get; set; }
+    }
+    public class StandingsLists{
+        public List<DriverStandings> DriverStandings { get; set; }
+    }
+    public class DriverStandings{
+        public String position { get; set; }
+        public String positionText { get; set; }
+        public String points { get; set; }
+        public String wins { get; set; }
+        public Driver Driver { get; set; }
+        public List<Construtor> Constructors { get; set; }
+    }
+
+    public class Driver{
+        public String DriverId { get; set; }
+        public integer permanentNumber { get; set; }
+        public String code { get; set; }
+        public String nationality { get; set; }
+        public String url { get; set; }
+        public String givenName { get; set; }
+        public String familyName { get; set; }
+        public String dateOfBirth { get; set; }
+    }
+    
+    public class Construtor{
+        public String constructorId { get; set; }
+        public String url { get; set; }
+        public String name { get; set; }
+        public String nationality { get; set; }
+    }
+}
+
+public with sharing class driverWrapper {
+    
+public class root
+    {
+        public MRData MRData {set; get;}
+    }
+    public class MRData
+    {
+        public DriverTable DriverTable {set; get;}
+    }
+    public class DriverTable
+    {
+        public String season {set; get;}
+        public List<Driver> Drivers {set; get;}
+    }
+    public class Driver
+    {
+        public String driverId {set; get;}
+        public Integer permanentNumber {set; get;}
+        public String code {set; get;}
+        public String url {set; get;}
+        public String givenName {set; get;}
+        public String familyName {set; get;}
+        public Date dateOfBirth {set; get;}     
+        public String nationality {set; get;}
+    }
+        public class constructor{
+        public String constructorId {set; get;}
+        public String url {set; get;}
+        public String name {set; get;}
+        public String nationality {set; get;}
+    }
+}
+
+
+/**
+ * =====================================================
+ * F1DataQueueable - Sincronización F1 en Cadena
+ * =====================================================
+ * Ejecuta la sincronización de datos F1 en 6 pasos encadenados.
+ * Cada paso es una transacción separada (cumple límites de Salesforce).
+ * 
+ * Reutiliza las clases de API existentes:
+ *   - constructor.cls
+ *   - constructorStanding.cls
+ *   - driver.cls
+ *   - driverstanding.cls
+ *   - circuit.cls
+ *   - result.cls
+ * 
+ * USO MANUAL:
+ *   System.enqueueJob(new F1DataQueueable());
+ * 
+ * USO PROGRAMADO:
+ *   System.schedule('F1 Sync', '0 0 6 ? * MON', new F1DataSyncJob());
+ * 
+ * PASOS:
+ *   1. Constructors (básicos)
+ *   2. Constructor Standings + Value
+ *   3. Drivers (básicos)
+ *   4. Driver Standings + Value + Constructor Lookup
+ *   5. Circuits
+ *   6. Results + Fastest Lap
+ * =====================================================
+ */
+public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
+
+    // ==================== CONFIGURACIÓN VALUE ====================
+    private static final Decimal DRIVER_BASE_VALUE = 5.0;
+    private static final Decimal DRIVER_POINTS_FACTOR = 0.05;
+    private static final Decimal DRIVER_WINS_BONUS = 0.5;
+    private static final Decimal DRIVER_MAX_VALUE = 30.0;
+
+    private static final Decimal CONSTRUCTOR_BASE_VALUE = 15.0;
+    private static final Decimal CONSTRUCTOR_POINTS_FACTOR = 0.04;
+    private static final Decimal CONSTRUCTOR_WINS_BONUS = 1.0;
+    private static final Decimal CONSTRUCTOR_MAX_VALUE = 50.0;
+
+    // ==================== CONTROL DE PASOS ====================
+    private Integer currentStep;
+
+    // Constructor por defecto - inicia en paso 1
+    public F1DataQueueable() {
+        this.currentStep = 1;
+    }
+
+    // Constructor con paso específico
+    public F1DataQueueable(Integer step) {
+        this.currentStep = step;
+    }
+
+    public void execute(QueueableContext context) {
+        try {
+            System.debug('========== F1DataQueueable - PASO ' + currentStep + ' ==========');
+
+            switch on currentStep {
+                when 1 {
+                    syncConstructors();
+                }
+                when 2 {
+                    syncConstructorStandings();
+                }
+                when 3 {
+                    syncDrivers();
+                }
+                when 4 {
+                    syncDriverStandings();
+                }
+                when 5 {
+                    syncCircuits();
+                }
+                when 6 {
+                    syncResults();
+                }
+            }
+
+            // Encadenar siguiente paso si no es el último
+            if (currentStep < 6) {
+                System.enqueueJob(new F1DataQueueable(currentStep + 1));
+                System.debug('➡️ Encolado paso ' + (currentStep + 1));
+            } else {
+                System.debug('🏁 F1DataQueueable COMPLETADO - Todos los pasos ejecutados');
+            }
+
+        } catch (Exception e) {
+            System.debug('❌ ERROR en paso ' + currentStep + ': ' + e.getMessage() + ' - ' + e.getStackTraceString());
+            // Opcional: continuar con el siguiente paso aunque falle uno
+            if (currentStep < 6) {
+                System.enqueueJob(new F1DataQueueable(currentStep + 1));
+            }
+        }
+    }
+
+    // ==================== PASO 1: CONSTRUCTORS ====================
+    private void syncConstructors() {
+        System.debug('--- Sincronizando Constructors ---');
+        
+        List<Map<String, Object>> constructorData = constructor.givenConstructors();
+        
+        if (constructorData == null || constructorData.isEmpty()) {
+            System.debug('⚠️ No hay datos de constructors');
+            return;
+        }
+
+        List<Constructor__c> constructorsToUpsert = new List<Constructor__c>();
+
+        for (Map<String, Object> c : constructorData) {
+            Constructor__c cons = new Constructor__c();
+            cons.constructorId__c = normalize((String) c.get('constructorId'));
+            cons.Name = (String) c.get('name');
+            cons.nationality__c = (String) c.get('nationality');
+            cons.url__c = (String) c.get('url');
+            
+            constructorsToUpsert.add(cons);
+        }
+
+        if (!constructorsToUpsert.isEmpty()) {
+            Database.UpsertResult[] results = Database.upsert(constructorsToUpsert, Constructor__c.Fields.constructorId__c, false);
+            logResults('Constructors', results);
+        }
+    }
+
+    // ==================== PASO 2: CONSTRUCTOR STANDINGS + VALUE ====================
+    private void syncConstructorStandings() {
+        System.debug('--- Sincronizando Constructor Standings + Value ---');
+        
+        List<Map<String, Object>> standingsData = constructorStanding.givenconstructorstanding();
+        
+        if (standingsData == null || standingsData.isEmpty()) {
+            System.debug('⚠️ No hay datos de constructor standings');
+            return;
+        }
+
+        List<Constructor__c> constructorsToUpdate = new List<Constructor__c>();
+
+        for (Map<String, Object> s : standingsData) {
+            String constructorId = normalize((String) s.get('constructorId'));
+            Integer wins = toInteger(s.get('wins'));
+            Integer points = toInteger(s.get('points'));
+
+            Constructor__c cons = new Constructor__c();
+            cons.constructorId__c = constructorId;
+            cons.Wins__c = wins;
+            cons.Total_Points__c = points;
+            cons.Value__c = calculateConstructorValue(points, wins);
+
+            constructorsToUpdate.add(cons);
+            
+            System.debug(s.get('name') + ' | Wins: ' + wins + ' | Points: ' + points + ' | Value: $' + cons.Value__c + 'M');
+        }
+
+        if (!constructorsToUpdate.isEmpty()) {
+            Database.UpsertResult[] results = Database.upsert(constructorsToUpdate, Constructor__c.Fields.constructorId__c, false);
+            logResults('Constructor Standings', results);
+        }
+    }
+
+    // ==================== PASO 3: DRIVERS ====================
+    private void syncDrivers() {
+        System.debug('--- Sincronizando Drivers ---');
+        
+        List<Map<String, Object>> driverData = driver.givenDriver();
+        
+        if (driverData == null || driverData.isEmpty()) {
+            System.debug('⚠️ No hay datos de drivers');
+            return;
+        }
+
+        List<Driver__c> driversToUpsert = new List<Driver__c>();
+
+        for (Map<String, Object> d : driverData) {
+            Driver__c drv = new Driver__c();
+            drv.driverId__c = normalize((String) d.get('driverId'));
+            drv.Name = (String) d.get('givenName') + ' ' + (String) d.get('familyName');
+            drv.givenName__c = (String) d.get('givenName');
+            drv.familyName__c = (String) d.get('familyName');
+            drv.code__c = (String) d.get('code');
+            drv.permanentNumber__c = toInteger(d.get('permanentNumber'));
+            drv.nationality__c = (String) d.get('nationality');
+            drv.url__c = (String) d.get('url');
+            
+            Object dob = d.get('dateOfBirth');
+            if (dob != null) {
+                try {
+                    if (dob instanceof Date) {
+                        drv.dateOfBirth__c = (Date) dob;
+                    } else {
+                        drv.dateOfBirth__c = Date.valueOf((String) dob);
+                    }
+                } catch (Exception e) {
+                    System.debug('Error parsing dateOfBirth: ' + dob);
+                }
+            }
+            
+            driversToUpsert.add(drv);
+        }
+
+        if (!driversToUpsert.isEmpty()) {
+            Database.UpsertResult[] results = Database.upsert(driversToUpsert, Driver__c.Fields.driverId__c, false);
+            logResults('Drivers', results);
+        }
+    }
+
+    // ==================== PASO 4: DRIVER STANDINGS + VALUE + CONSTRUCTOR ====================
+    private void syncDriverStandings() {
+        System.debug('--- Sincronizando Driver Standings + Value ---');
+        
+        List<Map<String, Object>> standingsData = driverstanding.obtenerClasificacion();
+        
+        if (standingsData == null || standingsData.isEmpty()) {
+            System.debug('⚠️ No hay datos de driver standings');
+            return;
+        }
+
+        // Obtener mapa de Constructor IDs
+        Map<String, Id> constructorMap = getConstructorMap();
+
+        List<Driver__c> driversToUpdate = new List<Driver__c>();
+
+        for (Map<String, Object> s : standingsData) {
+            String driverId = normalize((String) s.get('driverId'));
+            Integer wins = toInteger(s.get('wins'));
+            Integer points = toInteger(s.get('points'));
+
+            Driver__c drv = new Driver__c();
+            drv.driverId__c = driverId;
+            drv.Wins__c = wins;
+            drv.Total_Points__c = points;
+            drv.Value__c = calculateDriverValue(points, wins);
+
+            // Buscar Constructor desde los datos de standings si está disponible
+            // Si no, usar el mapa de driver-constructor de results
+            String constructorId = (String) s.get('constructorId');
+            if (String.isBlank(constructorId)) {
+                // Intentar obtener de results
+                Map<String, String> driverConstructorMap = driver.getDriverConstructorMap();
+                constructorId = driverConstructorMap.get((String) s.get('driverId'));
+            }
+            
+            if (String.isNotBlank(constructorId) && constructorMap.containsKey(normalize(constructorId))) {
+                drv.Constructor__c = constructorMap.get(normalize(constructorId));
+            }
+
+            driversToUpdate.add(drv);
+            
+            System.debug(s.get('givenName') + ' ' + s.get('familyName') + 
+                ' | Wins: ' + wins + ' | Points: ' + points + ' | Value: $' + drv.Value__c + 'M');
+        }
+
+        if (!driversToUpdate.isEmpty()) {
+            Database.UpsertResult[] results = Database.upsert(driversToUpdate, Driver__c.Fields.driverId__c, false);
+            logResults('Driver Standings', results);
+        }
+    }
+
+    // ==================== PASO 5: CIRCUITS ====================
+    private void syncCircuits() {
+        System.debug('--- Sincronizando Circuits ---');
+        
+        List<Map<String, Object>> circuitData = circuit.giveCircuits();
+        
+        if (circuitData == null || circuitData.isEmpty()) {
+            System.debug('⚠️ No hay datos de circuits');
+            return;
+        }
+
+        List<Circuit__c> circuitsToUpsert = new List<Circuit__c>();
+
+        for (Map<String, Object> c : circuitData) {
+            Circuit__c cir = new Circuit__c();
+            cir.circuitId__c = normalize((String) c.get('circuitId'));
+            cir.Name = (String) c.get('circuitName');
+            cir.url__c = (String) c.get('url');
+            cir.country__c = (String) c.get('country');
+            cir.locality__c = (String) c.get('locality');
+            
+            if (c.get('lat') != null) {
+                cir.Location__Latitude__s = Decimal.valueOf(String.valueOf(c.get('lat')));
+            }
+            if (c.get('long') != null) {
+                cir.Location__Longitude__s = Decimal.valueOf(String.valueOf(c.get('long')));
+            }
+            
+            circuitsToUpsert.add(cir);
+        }
+
+        if (!circuitsToUpsert.isEmpty()) {
+            Database.UpsertResult[] results = Database.upsert(circuitsToUpsert, Circuit__c.Fields.circuitId__c, false);
+            logResults('Circuits', results);
+        }
+    }
+
+    // ==================== PASO 6: RESULTS ====================
+    private void syncResults() {
+        System.debug('--- Sincronizando Results ---');
+        
+        List<Map<String, Object>> resultsData = result.giveResults();
+        
+        if (resultsData == null || resultsData.isEmpty()) {
+            System.debug('⚠️ No hay datos de results');
+            return;
+        }
+
+        // Obtener mapas de IDs
+        Map<String, Id> driverMap = getDriverMap();
+        Map<String, Id> constructorMap = getConstructorMap();
+        Map<String, Id> circuitMap = getCircuitMap();
+
+        List<result__c> resultsToUpsert = new List<result__c>();
+
+        for (Map<String, Object> r : resultsData) {
+            String driverId = normalize((String) r.get('driverId'));
+            String constructorId = normalize((String) r.get('constructorId'));
+            String circuitId = normalize((String) r.get('circuitId'));
+            String season = String.valueOf(r.get('season'));
+            String round = String.valueOf(r.get('round'));
+
+            result__c res = new result__c();
+            
+            // External ID único
+            res.ResultKey__c = season + '_' + round + '_' + driverId;
+            
+            res.Name = (String) r.get('raceName');
+            res.number__c = toInteger(r.get('number'));
+            res.position__c = toInteger(r.get('position'));
+            res.positionText__c = (String) r.get('positionText');
+            res.points__c = toInteger(r.get('points'));
+            res.grid__c = toInteger(r.get('grid'));
+            res.laps__c = toInteger(r.get('laps'));
+            res.status__c = (String) r.get('status');
+
+            // Fastest Lap
+            Object fastestLapRank = r.get('fastestLapRank');
+            res.Fastest_Lap__c = (fastestLapRank != null && String.valueOf(fastestLapRank) == '1');
+
+            // Lookups
+            if (driverId != null && driverMap.containsKey(driverId)) {
+                res.Driver__c = driverMap.get(driverId);
+            }
+            if (constructorId != null && constructorMap.containsKey(constructorId)) {
+                res.Constructor__c = constructorMap.get(constructorId);
+            }
+            if (circuitId != null && circuitMap.containsKey(circuitId)) {
+                res.Circuit__c = circuitMap.get(circuitId);
+            }
+
+            resultsToUpsert.add(res);
+        }
+
+        if (!resultsToUpsert.isEmpty()) {
+            Database.UpsertResult[] results = Database.upsert(resultsToUpsert, result__c.Fields.ResultKey__c, false);
+            logResults('Results', results);
+        }
+    }
+
+    // ==================== HELPERS ====================
+
+    private Map<String, Id> getDriverMap() {
+        Map<String, Id> driverMap = new Map<String, Id>();
+        for (Driver__c d : [SELECT Id, driverId__c FROM Driver__c WHERE driverId__c != null]) {
+            driverMap.put(normalize(d.driverId__c), d.Id);
+        }
+        return driverMap;
+    }
+
+    private Map<String, Id> getConstructorMap() {
+        Map<String, Id> constructorMap = new Map<String, Id>();
+        for (Constructor__c c : [SELECT Id, constructorId__c FROM Constructor__c WHERE constructorId__c != null]) {
+            constructorMap.put(normalize(c.constructorId__c), c.Id);
+        }
+        return constructorMap;
+    }
+
+    private Map<String, Id> getCircuitMap() {
+        Map<String, Id> circuitMap = new Map<String, Id>();
+        for (Circuit__c c : [SELECT Id, circuitId__c FROM Circuit__c WHERE circuitId__c != null]) {
+            circuitMap.put(normalize(c.circuitId__c), c.Id);
+        }
+        return circuitMap;
+    }
+
+    private Decimal calculateDriverValue(Integer points, Integer wins) {
+        Decimal p = points != null ? points : 0;
+        Decimal w = wins != null ? wins : 0;
+        
+        Decimal value = DRIVER_BASE_VALUE + (p * DRIVER_POINTS_FACTOR) + (w * DRIVER_WINS_BONUS);
+        
+        if (value > DRIVER_MAX_VALUE) {
+            value = DRIVER_MAX_VALUE;
+        }
+        
+        return value.setScale(1, RoundingMode.HALF_UP);
+    }
+
+    private Decimal calculateConstructorValue(Integer points, Integer wins) {
+        Decimal p = points != null ? points : 0;
+        Decimal w = wins != null ? wins : 0;
+        
+        Decimal value = CONSTRUCTOR_BASE_VALUE + (p * CONSTRUCTOR_POINTS_FACTOR) + (w * CONSTRUCTOR_WINS_BONUS);
+        
+        if (value > CONSTRUCTOR_MAX_VALUE) {
+            value = CONSTRUCTOR_MAX_VALUE;
+        }
+        
+        return value.setScale(1, RoundingMode.HALF_UP);
+    }
+
+    private static String normalize(String val) {
+        return val != null ? val.trim().toLowerCase() : null;
+    }
+
+    private static Integer toInteger(Object val) {
+        if (val == null) return null;
+        try {
+            return Integer.valueOf(String.valueOf(val));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void logResults(String objectName, Database.UpsertResult[] results) {
+        Integer ok = 0, fail = 0;
+        for (Database.UpsertResult ur : results) {
+            if (ur.isSuccess()) {
+                ok++;
+            } else {
+                fail++;
+                for (Database.Error err : ur.getErrors()) {
+                    System.debug('❌ Error ' + objectName + ': ' + err.getMessage());
+                }
+            }
+        }
+        System.debug('✅ ' + objectName + ' sincronizados. Éxitos: ' + ok + ', Fallos: ' + fail);
+    }
+}
+
+public with sharing class lap {
+    @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> giveLap() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/2025/1/laps.json'); // Ajusta el Named Credential
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+                       
+                // Deserializamos la respuesta comenzando con la estructura que mencina la Api
+
+                    if (res.getStatusCode() == 200) {
+
+                        Map<String, Object> jsonMap   = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                        Map<String, Object> mrData    = (Map<String, Object>) jsonMap.get('MRData');
+                        Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+                        List<Object> racesList        = (List<Object>) raceTable.get('Races'); // <-- antes usabas circuitTable
+
+                        
+                        // Iteramos race ya que la informacion que estamos buscando se encuentra dentro de carrera race
+
+                        for (Object obj : racesList) {
+                            Map<String, Object> raceItem = (Map<String, Object>) obj;
+
+                            // Comenzamos a extraer la lista de los laps que se encuentra dentro de race
+
+                            List<Object> lapsList = (List<Object>) raceItem.get('Laps');
+                            if (lapsList == null) {
+                                // Si esta carrera no trae Laps, pasar a la siguiente
+                                continue;
+                            }
+
+                            // generamos un blucle para poder recorere cada lap que se encuentr dentro de race
+                            for (Object lapObj : lapsList) {
+                                Map<String, Object> lapMap = (Map<String, Object>) lapObj;
+                                Map<String, Object> circuitMap = (Map<String, Object>) lapMap.get('Circuit');
+                                Object circuitId   = circuitMap != null ? circuitMap.get('circuitId') : null;
+                                Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null;
+                                Object circuitLocation = circuitMap != null ? circuitMap.get('Location') : null;
+                                
+                                Object lapNumber = lapMap.get('number');
+                                
+                                List<Object> timingsList = (List<Object>) lapMap.get('Timings');
+                                if (timingsList != null) {
+                                    for (Object timingObj : timingsList) {
+                                        Map<String, Object> timingMap = (Map<String, Object>) timingObj;
+
+                                        // Se armar una fila por cada timing con los valores que se encuentra dentro de la Api y que aparecen en la vuelta
+                                        Map<String, Object> row = new Map<String, Object>();
+                                        row.put('lapNumber', lapNumber);
+                                        row.put('driverId', timingMap.get('driverId'));
+                                        row.put('position', timingMap.get('position'));
+                                        row.put('time',     timingMap.get('time'));
+
+                                        result.add(row);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                            System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
+                        }
+
+            } catch (Exception e) {
+                System.debug('Excepción en giveLap: ' + e.getMessage());
+            }
+
+        return result;
+    }
+
+                    // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+
+
+@AuraEnabled
+public static void saveLap() {
+    List<Map<String, Object>> lapData = giveLap();
+    List<lap__c> lapToInsert = new List<lap__c>();
+    List<Circuit__c> circuitsToUpsert = new List<Circuit__c>();
+
+    for (Map<String, Object> ls : lapData) {
+        // Crear circuito para upsert
+        /*Circuit__c circuit = new Circuit__c();
+        circuit.circuitId__c = (String) ls.get('circuitId'); // External Id
+        circuit.Name = (String) ls.get('Name');
+        circuit.url__c = (String) ls.get('circuitUrl');
+        circuitsToUpsert.add(circuit);*/
+
+        // Crear lap
+        lap__c l = new lap__c();
+        l.Name = 'Lap ' + (String) ls.get('lapNumber');
+        l.position__c = Integer.valueOf((String) ls.get('position'));
+        String timeVal = (String) ls.get('time');
+                l.time__c = parseQuTime(timeVal);
+
+        /*// Relacionar con circuito por External Id
+        String circuitId = (String) ls.get('circuitId');
+        if (String.isNotBlank(circuitId)) {
+            l.Circuit__r = new Circuit__c(circuitId__c = circuitId);
+        }*/
+
+        lapToInsert.add(l);
+    }
+
+    // Upsert circuitos primero
+    if (!circuitsToUpsert.isEmpty()) {
+        Database.upsert(circuitsToUpsert, Circuit__c.Fields.circuitId__c, false);
+    }
+
+    // Insert laps
+    if (!lapToInsert.isEmpty()) {
+        Database.insert(lapToInsert, false);
+    }
+}
+
+        private static Time parseQuTime(String val) {
+                if (String.isBlank(val)) return null;
+
+                try {
+                    List<String> minAndRest = val.split(':');
+                    if (minAndRest.size() != 2) return null;
+
+                    Integer minutes = Integer.valueOf(minAndRest[0]);
+
+                    List<String> secAndMs = minAndRest[1].split('\\.');
+                    Integer seconds = Integer.valueOf(secAndMs[0]);
+                    Integer millis = 0; // Salesforce Time no soporta milisegundos
+
+                    return Time.newInstance(0, minutes, seconds, millis);
+                } catch (Exception e) {
+                    System.debug('Formato inválido para time: ' + val);
+                    return null;
+                }
+            }
+        
+
+}
+
+global class lapBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // Obtener datos desde la API
+            List<Map<String, Object>> lapData = lap.giveLap();
+            System.debug('Cantidad de laps obtenidos: ' + lapData.size());
+
+             List<lap__c> lapToInsert = new List<lap__c>();
+                List<Circuit__c> circuitsToUpsert = new List<Circuit__c>();
+
+
+            for (Map<String, Object> ls : lapData) {
+                // Crear circuito para upsert
+                        Circuit__c circuit = new Circuit__c();
+                        circuit.circuitId__c = (String) ls.get('circuitId'); // External Id
+                        circuit.Name = (String) ls.get('Name');
+                        circuit.url__c = (String) ls.get('circuitUrl');
+                        circuitsToUpsert.add(circuit);
+
+                        // Crear lap
+                        lap__c l = new lap__c();
+                        l.Name = 'Lap ' + (String) ls.get('lapNumber');
+                        l.position__c = Integer.valueOf((String) ls.get('position'));
+                        String timeVal = (String) ls.get('time');
+                                l.time__c = parseQuTime(timeVal);
+
+                        // Relacionar con circuito por External Id
+                        String circuitId = (String) ls.get('circuitId');
+                        if (String.isNotBlank(circuitId)) {
+                            l.Circuit__r = new Circuit__c(circuitId__c = circuitId);
+                        }
+
+                        lapToInsert.add(l);
+            }
+
+
+                                // Upsert circuitos primero
+                        if (!circuitsToUpsert.isEmpty()) {
+                            Database.upsert(circuitsToUpsert, Circuit__c.Fields.circuitId__c, false);
+                        }
+
+                        // Insert laps
+                        if (!lapToInsert.isEmpty()) {
+                            Database.insert(lapToInsert, false);
+                        }
+           /* if (!lapsToUpsert.isEmpty()) {
+                // Upsert usando Name (o mejor un campo External Id si lo tienes)
+                Database.UpsertResult[] results = Database.upsert(lapsToUpsert, lap__c.Fields.Name, false);
+
+                Integer ok = 0; Integer fail = 0;
+                for (Database.UpsertResult r : results) {
+                    if (r.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        System.debug('Error al upsert Lap: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+
+                System.debug('Laps procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
+            } else {
+                System.debug('No hay laps para procesar.');
+            }*/
+
+            
+
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch de Laps finalizado.');
+    }
+
+    // Conversión de tiempo en formato mm:ss.ms a Time
+    private static Time parseQuTime(String val) {
+        if (String.isBlank(val)) return null;
+
+        try {
+            List<String> minAndRest = val.split(':');
+            if (minAndRest.size() != 2) return null;
+
+            Integer minutes = Integer.valueOf(minAndRest[0]);
+
+            List<String> secAndMs = minAndRest[1].split('\\.');
+            Integer seconds = Integer.valueOf(secAndMs[0]);
+            Integer millis = 0; // Salesforce Time no soporta milisegundos
+
+            return Time.newInstance(0, minutes, seconds, millis);
+        } catch (Exception e) {
+            System.debug('Formato inválido para time: ' + val);
+            return null;
+        }
+    }
+}
+
+public with sharing class pitstop { 
+@AuraEnabled(cacheable=true)
+public static List<Map<String, Object>> givepitstop() {
+    List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+    try {
+        Http http = new Http();
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('callout:pilotos2/ergast/f1/2025/1/pitstops.json'); // Named Credential
+        req.setMethod('GET');
+
+        HttpResponse res = http.send(req);
+
+        if (res.getStatusCode() == 200) {
+            Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+            Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
+            Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+            List<Object> racesList = (List<Object>) raceTable.get('Races');
+
+            for (Object obj : racesList) {
+                Map<String, Object> raceItem = (Map<String, Object>) obj;
+
+                // Circuit info (a nivel de carrera)
+                Map<String, Object> circuitMap = (Map<String, Object>) raceItem.get('Circuit');
+                String circuitId = circuitMap != null ? (String) circuitMap.get('circuitId') : null;
+                String circuitName = circuitMap != null ? (String) circuitMap.get('circuitName') : null;
+
+                // Lista de pitstops
+                List<Object> pitStops = (List<Object>) raceItem.get('PitStops');
+                if (pitStops == null) continue;
+
+                for (Object pitObj : pitStops) {
+                    Map<String, Object> pitMap = (Map<String, Object>) pitObj;
+
+                    Map<String, Object> row = new Map<String, Object>();
+                    row.put('lap', pitMap.get('lap'));
+                    row.put('stop', pitMap.get('stop'));
+                    row.put('time', pitMap.get('time'));
+                    row.put('duration', pitMap.get('duration'));
+
+                    // DriverId viene directamente en pitstop
+                    row.put('driverId', pitMap.get('driverId'));
+
+                    // Circuit info desde la carrera
+                    row.put('circuitId', circuitId);
+                    row.put('circuitName', circuitName);
+
+                    result.add(row);
+                }
+            }
+        } else {
+            System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
+        }
+    } catch (Exception e) {
+        System.debug('Excepción en givepitstop: ' + e.getMessage());
+    }
+
+    return result;
+}
+
+
+    // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+
+
+                @AuraEnabled
+                public static void savepitstop() {
+                    List<Map<String, Object>> pitstopData = givepitstop();
+                    List<pitstop__c> pitstopToInsert = new List<pitstop__c>();
+                    List<Driver__c> driversToUpsert = new List<Driver__c>();
+                    List<Circuit__c> circuitsToUpsert = new List<Circuit__c>();
+
+                         Set<String> driverIds = new Set<String>();           
+                        Set<String> circuitIds = new Set<String>();
+
+                    for (Map<String, Object> ps : pitstopData) {
+                        
+                        String driverIdRaw = (String) ps.get('driverId');
+                        String circuitIdRaw = (String) ps.get('circuitId');
+                        
+                        String driverId = driverIdRaw != null ? driverIdRaw.trim().toLowerCase() : null;
+                        String circuitId = circuitIdRaw != null ? circuitIdRaw.trim().toLowerCase() : null;
+
+                        if (!String.isBlank(driverId)) driverIds.add(driverId);
+                        if (!String.isBlank(circuitId)) circuitIds.add(circuitId);
+
+                     
+
+                        if(!String.isBlank(driverIdRaw)){
+                             Driver__c d = new Driver__c();
+                             d.driverId__c = driverId;
+                             d.Name = buildDriverName(ps);
+                             driversToUpsert.add(d);
+                        } 
+
+                        if(!String.isblank(circuitIdRaw)){
+                            Circuit__c ci = new Circuit__c();
+                            ci.circuitId__c = circuitId;
+                            ci.Name = (String) ps.get('circuitName');
+                            circuitsToUpsert.add(ci);
+                        }
+
+                      
+                                pitstop__c p = new pitstop__c();
+                                p.Name = (String) ps.get('name');
+                                p.lap__c = Integer.valueOf((String) ps.get('lap'));
+                                p.stop__c = Integer.valueOf((String) ps.get('stop'));
+
+                                // Convertir time (formato HH:mm:ss)
+                                String timeVal = (String) ps.get('time');
+                                if (!String.isBlank(timeVal)) {
+                                    p.time__c = parsePitstopTime(timeVal); // Nuevo método
+                                }
+
+                                // Convertir duration (formato decimal)
+                                String durationVal = (String) ps.get('duration');
+                                if (!String.isBlank(durationVal)) {
+                                    p.duration__c = Decimal.valueOf(durationVal);
+                                }
+
+                                pitstopToInsert.add(p);
+
+
+                    }
+
+                    // Upsert Circuit and Driver
+                    if (!driversToUpsert.isEmpty()) {
+                        Database.upsert(driversToUpsert, Driver__c.Fields.driverId__c, false);
+                    }
+                    
+                    if (!circuitsToUpsert.isEmpty()) {
+                        Database.upsert(circuitsToUpsert, Circuit__c.Fields.circuitId__c, false);
+                    }
+
+                    // 3. Consultar Ids reales y normalizar claves
+
+                    Map<String, Id> driverMap = new Map<String, Id>();
+                        for (Driver__c d : [SELECT Id, driverId__c FROM Driver__c WHERE driverId__c IN :driverIds]) {
+                          driverMap.put(d.driverId__c.trim().toLowerCase(), d.Id);
+                        }
+
+                    Map<String, Id> circuitMap = new Map<String, Id>();
+                        for (Circuit__c ci : [SELECT Id, circuitId__c FROM Circuit__c WHERE circuitId__c IN :circuitIds]) {
+                          circuitMap.put(ci.circuitId__c.trim().toLowerCase(), ci.Id);
+                        }
+                    System.debug('circuitMap: ' + circuitMap);
+                    System.debug('driverMap: ' + driverMap);
+                        
+                    // 4. Asignar Lookups
+                
+
+                  for (Integer i = 0; i < pitstopData.size(); i++) {
+                        Map<String, Object> ps = pitstopData[i];
+                        String dId = ps.get('driverId') != null ? ((String) ps.get('driverId')).trim().toLowerCase() : null;
+                        String ciId = ps.get('circuitId') != null ? ((String) ps.get('circuitId')).trim().toLowerCase() : null;
+
+                        if (!String.isBlank(dId)) pitstopToInsert[i].Driver__c = driverMap.get(dId);
+                        if (!String.isBlank(ciId)) pitstopToInsert[i].Circuit__c = circuitMap.get(ciId);
+                    }
+
+                    if (!pitstopToInsert.isEmpty()) {
+                        Database.insert(pitstopToInsert, false);
+                        System.debug('Registros insertados: ' + pitstopToInsert.size());
+                    }
+
+                        
+                }
+
+                
+                    private static Time parsePitstopTime(String val) {
+                        if (String.isBlank(val)) return null;
+                        List<String> parts = val.split(':');
+                        if (parts.size() != 3) return null; // HH:mm:ss
+                        Integer hours = Integer.valueOf(parts[0]);
+                        Integer minutes = Integer.valueOf(parts[1]);
+                        Integer seconds = Integer.valueOf(parts[2]);
+                        return Time.newInstance(hours, minutes, seconds, 0);
+                    }
+
+            
+                private static String buildDriverName(Map<String, Object> ds) {
+                String given = (String) ds.get('givenName');
+                String family = (String) ds.get('familyName');
+                String full = ((given != null ? given : '') + ' ' + (family != null ? family : '')).trim();
+                return String.isBlank(full) ? (String) ds.get('driverId') : full;
+                }
+
+}
+
+global class pitstopBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // Obtener datos desde la API
+            List<Map<String, Object>> lapData = pitstop.givepitstop();
+            System.debug('Cantidad de pit stops obtenidos: ' + lapData.size());
+
+            List<pitstop__c> pitstopToUpsert = new List<pitstop__c>();
+
+            for (Map<String, Object> ps : lapData) {
+                pitstop__c p = new pitstop__c();
+
+                p.Name = (String) ps.get('Name');
+
+                // Conversión segura para lap y stop
+                Object lapObj = ps.get('lap');
+                if (lapObj != null) {
+                    try {
+                        p.lap__c = Integer.valueOf(String.valueOf(lapObj));
+                    } catch (Exception e) {
+                        System.debug('Valor inválido para lap: ' + lapObj);
+                    }
+                }
+
+                Object stopObj = ps.get('stop');
+                if (stopObj != null) {
+                    try {
+                        p.stop__c = Integer.valueOf(String.valueOf(stopObj));
+                    } catch (Exception e) {
+                        System.debug('Valor inválido para stop: ' + stopObj);
+                    }
+                }
+
+                // Conversión segura para time
+                String timeVal = (String) ps.get('time');
+                p.time__c = parseQuTime(timeVal);
+
+                // Conversión segura para duration
+                Object durationObj = ps.get('durationduration'); // Verifica si el key correcto es 'duration' o 'durationduration'
+                if (durationObj != null) {
+                    try {
+                        p.duration__c = Decimal.valueOf(String.valueOf(durationObj));
+                    } catch (Exception e) {
+                        System.debug('Valor inválido para duration: ' + durationObj);
+                    }
+                }
+
+                pitstopToUpsert.add(p);
+            }
+
+            if (!pitstopToUpsert.isEmpty()) {
+                // Upsert usando Name como identificador (o crea un External Id si lo tienes)
+                Database.UpsertResult[] results = Database.upsert(pitstopToUpsert, pitstop__c.Fields.Name, false);
+
+                Integer ok = 0; Integer fail = 0;
+                for (Database.UpsertResult r : results) {
+                    if (r.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        System.debug('Error al upsert Pit Stop: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+
+                System.debug('Pit Stops procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
+            } else {
+                System.debug('No hay pit stops para procesar.');
+            }
+
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch de Pit Stops finalizado.');
+    }
+
+    // Conversión de tiempo en formato mm:ss.ms a Time
+    private static Time parseQuTime(String val) {
+        if (String.isBlank(val)) return null;
+
+        try {
+            List<String> minAndRest = val.split(':');
+            if (minAndRest.size() != 2) return null;
+
+            Integer minutes = Integer.valueOf(minAndRest[0]);
+
+            List<String> secAndMs = minAndRest[1].split('\\.');
+            Integer seconds = Integer.valueOf(secAndMs[0]);
+            Integer millis = 0; // Salesforce Time no soporta milisegundos, se ignora
+
+            return Time.newInstance(0, minutes, seconds, millis);
+        } catch (Exception e) {
+            System.debug('Formato inválido para time: ' + val);
+            return null;
+        }
+    }
+}
+
+public with sharing class qualifying {
+
+    @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> giveQualifying() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/2025/qualifying.json');
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+                
+                // Deserializamos la respuesta comenzando con la estructura que mencina la Api
+
+                        if (res.getStatusCode() == 200) {
+                            Map<String, Object> jsonMap   = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                            Map<String, Object> mrData    = (Map<String, Object>) jsonMap.get('MRData');
+                            Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+
+                            // Races es una LISTA
+                            List<Object> races = (List<Object>) raceTable.get('Races');
+
+                            for (Object raceObj : races) {
+                                Map<String, Object> race = (Map<String, Object>) raceObj;
+
+                                List<Object> qualifyingResults = (List<Object>) race.get('QualifyingResults');
+                                if (qualifyingResults == null) continue;
+
+                                for (Object qrObj : qualifyingResults) {
+                                    Map<String, Object> qr = (Map<String, Object>) qrObj;
+
+                                    // Creamos un Map plano para devolver la informacion que se encuentra dentro de la Api
+                                    Map<String, Object> qualiMap = new Map<String, Object>();
+                                    qualiMap.put('position', qr.get('position'));
+                                    qualiMap.put('number', qr.get('number'));
+                                    qualiMap.put('Q1', qr.get('Q1'));
+                                    qualiMap.put('Q2', qr.get('Q2'));
+                                    qualiMap.put('Q3', qr.get('Q3'));
+                                    qualiMap.put('Driver', qr.get('Driver'));
+                                    qualiMap.put('Constructor', qr.get('Constructor'));
+
+                                    result.add(qualiMap);
+
+                                    // Debug opcional
+                                    System.debug(LoggingLevel.INFO,
+                                        'Quali: pos=' + qr.get('position') +
+                                        ', driver=' + ((Map<String,Object>) qr.get('Driver')).get('code') +
+                                        ', team=' + ((Map<String,Object>) qr.get('Constructor')).get('name') +
+                                        ', Q1=' + qr.get('Q1') +
+                                        ', Q2=' + qr.get('Q2') +
+                                        ', Q3=' + qr.get('Q3')
+                                    );
+                                }
+                            }
+                        }
+            } catch (Exception e) {
+                System.debug('Error: ' + e.getMessage());
+            }
+
+        return result;
+    }
+                    
+    
+            // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+
+                @AuraEnabled
+                public static void SaveQualifyingResults() {
+                    List<Map<String, Object>> qualifyingData = giveQualifying();
+                    List<qualifying__c> qualifyingToInsert = new List<qualifying__c>();
+
+                    for (Map<String, Object> stat : qualifyingData) {
+                        qualifying__c q = new qualifying__c();
+
+                        // Convertir Q1, Q2, Q3 a Time
+                        q.Q1__c = parseQuTime((String) stat.get('Q1'));
+                        q.Q2__c = parseQuTime((String) stat.get('Q2'));
+                        q.Q3__c = parseQuTime((String) stat.get('Q3'));
+
+                        qualifyingToInsert.add(q);
+                    }
+
+                    if (!qualifyingToInsert.isEmpty()) {
+                        Database.insert(qualifyingToInsert, false);
+                        System.debug('Registros insertados (Quali): ' + qualifyingToInsert.size());
+                    }
+                }
+
+                // Método helper fuera de cualquier bloque
+                private static Time parseQuTime(String val) {
+                    if (String.isBlank(val)) return null;
+
+                    // Formato esperado: para la conversion de time
+                    List<String> minAndRest = val.split(':');
+                    if (minAndRest.size() != 2) return null;
+
+                    Integer minutes = Integer.valueOf(minAndRest[0]);
+
+                    List<String> secAndMs = minAndRest[1].split('\\.');
+                    Integer seconds = Integer.valueOf(secAndMs[0]);
+                    Integer millis = 0;
+
+                    return Time.newInstance(0, minutes, seconds, millis);
+                }
+}
+
+global class qualifyingBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // Obtener datos desde la API
+            List<Map<String, Object>> qualifyingData = qualifying.giveQualifying();
+            System.debug('Cantidad de resultados de clasificación obtenidos: ' + qualifyingData.size());
+
+            List<qualifying__c> qualifyingToUpsert = new List<qualifying__c>();
+
+            for (Map<String, Object> stat : qualifyingData) {
+                qualifying__c q = new qualifying__c();
+
+                // Conversión segura para Q1, Q2, Q3
+                q.Q1__c = parseQuTime((String) stat.get('Q1'));
+                q.Q2__c = parseQuTime((String) stat.get('Q2'));
+                q.Q3__c = parseQuTime((String) stat.get('Q3'));
+
+                // Si tienes más campos como driverId, position, etc., agrégalos aquí
+                if (stat.containsKey('driverId')) {
+                    q.driverId__c = (String) stat.get('driverId');
+                }
+                if (stat.containsKey('position')) {
+                    try {
+                        q.position__c = Integer.valueOf(String.valueOf(stat.get('position')));
+                    } catch (Exception e) {
+                        System.debug('Valor inválido para position: ' + stat.get('position'));
+                    }
+                }
+
+                qualifyingToUpsert.add(q);
+            }
+
+            if (!qualifyingToUpsert.isEmpty()) {
+                // Upsert usando driverId__c (ideal si está marcado como External Id)
+                Database.UpsertResult[] results = Database.upsert(qualifyingToUpsert, qualifying__c.Fields.driverId__c, false);
+
+                Integer ok = 0; Integer fail = 0;
+                for (Database.UpsertResult r : results) {
+                    if (r.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        System.debug('Error al upsert Qualifying: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+
+                System.debug('Resultados de clasificación procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
+            } else {
+                System.debug('No hay resultados de clasificación para procesar.');
+            }
+
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch de Qualifying finalizado.');
+    }
+
+    // Conversión de tiempo en formato mm:ss.ms a Time
+    private static Time parseQuTime(String val) {
+        if (String.isBlank(val)) return null;
+
+        try {
+            List<String> minAndRest = val.split(':');
+            if (minAndRest.size() != 2) return null;
+
+            Integer minutes = Integer.valueOf(minAndRest[0]);
+
+            List<String> secAndMs = minAndRest[1].split('\\.');
+            Integer seconds = Integer.valueOf(secAndMs[0]);
+            Integer millis = 0; // Salesforce Time no soporta milisegundos
+
+            return Time.newInstance(0, minutes, seconds, millis);
+        } catch (Exception e) {
+            System.debug('Formato inválido para tiempo: ' + val);
+            return null;
+        }
+    }
+}
+
+public with sharing class race {
+
+    @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> giveRace() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/2025/races.json'); // Named Credential
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+
+                // Deserializamos la respuesta comenzando con la estructura que mencina la Api
+
+
+            if (res.getStatusCode() == 200) {
+                Map<String, Object> jsonMap   = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                Map<String, Object> mrData    = (Map<String, Object>) jsonMap.get('MRData');
+                Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+                List<Object> racesList        = (List<Object>) raceTable.get('Races');
+
+                for (Object obj : racesList) {
+                    Map<String, Object> race = (Map<String, Object>) obj;
+
+                    Map<String, Object> row = new Map<String, Object>();
+                    row.put('raceName', race.get('raceName'));
+                    row.put('url',      race.get('url'));
+                    row.put('date',     race.get('date')); 
+                    row.put('time',     race.get('time')); 
+                    row.put('season',   race.get('season'));
+                    row.put('round',    race.get('round'));
+
+                    // mencionamos en donde se obtiene los datos de Prácticas y Qualifying
+                    Map<String, Object> fp = (Map<String, Object>) race.get('FirstPractice');
+                    Map<String, Object> sp = (Map<String, Object>) race.get('SecondPractice');
+                    Map<String, Object> tp = (Map<String, Object>) race.get('ThirdPractice');
+                    Map<String, Object> q  = (Map<String, Object>) race.get('Qualifying');
+
+                    if (fp != null) {
+                        row.put('firstPracticeDate', fp.get('date'));
+                        row.put('firstPracticeTime', fp.get('time'));
+                    }
+                    if (sp != null) {
+                        row.put('secondPracticeDate', sp.get('date'));
+                        row.put('secondPracticeTime', sp.get('time'));
+                    }
+                    if (tp != null) {
+                        row.put('thirdPracticeDate', tp.get('date'));
+                        row.put('thirdPracticeTime', tp.get('time'));
+                    }
+                    if (q != null) {
+                        row.put('qualifyingDate', q.get('date'));
+                        row.put('qualifyingTime', q.get('time'));
+                    }
+
+                    Map<String, Object> circuitMap = (Map<String, Object>) race.get('Circuit');
+                    Map<String, Object> location = (Map<String, Object>) circuitMap.get('Location');
+                        Object circuitId   = circuitMap != null ? circuitMap.get('circuitId') : null;
+                        Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null; 
+                    if (circuitMap != null) {
+                        row.put('circuitId',  circuitMap.get ('circuitId'));
+                        row.put('circuitName', circuitMap.get ('circuitName'));
+                        row.put('url', circuitMap.get('url')); 
+                     }
+
+                    if (location != null) {
+                        
+                        row.put('lat', location.get('lat'));
+                        row.put('long', location.get('long'));
+                        row.put('locality', location.get('locality'));
+                        row.put('country', location.get('country'));
+                    }
+
+                    result.add(row);
+                }
+            } else {
+                System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.debug('Excepción en obtenerRace: ' + e.getMessage());
+        }
+
+        return result;
+    }
+
+        // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+
+        
+                @AuraEnabled
+                public static void saveRace() {
+                    List<Map<String, Object>> raceData = giveRace();
+                    List<race__c> raceToInsert = new List<race__c>();
+                    List<circuit__c> circuitToUpsert = new List<circuit__c>();
+                    
+                    Set<String> circuitIds = new Set<String>();
+
+                    for (Map<String, Object> ds : raceData) {
+
+                        String circuitId = ((String) ds.get('circuitId')).trim().toLowerCase();
+                        
+                        if (!String.isBlank(circuitId)) circuitIds.add(circuitId);
+
+                        // RACE //
+                        race__c r = new race__c();
+                        r.Name   = (String) ds.get('raceName');
+                        r.url__c = (String) ds.get('url');
+                        //r.round__c = (Integer) ds.get('round');
+                        r.round__c = ds.get('round') != null ? Integer.valueOf(String.valueOf(ds.get('round'))) : null;
+                        r.season__c =(String) ds.get('season');
+                        r.raceNameId__c = (String) ds.get ('raceName');
+                        
+                        String timeStr = (String) ds.get('time'); // Ejemplo: "14:30:00"
+                            if (!String.isBlank(timeStr)) {
+                                List<String> parts = timeStr.replace('Z','').split(':');
+                                Integer hour = Integer.valueOf(parts[0]);
+                                Integer minute = Integer.valueOf(parts[1]);
+                                Integer second = Integer.valueOf(parts[2]);
+                                r.time__c = Time.newInstance(hour, minute, second, 0); // ✔ funciona en todas las versiones
+                            }
+                          String dateStr = (String) ds.get('date');
+                        if (!String.isBlank(dateStr)) {
+                            r.date__c = Date.valueOf(dateStr);
+                        }
+
+                         raceToInsert.add(r);
+
+                        // CIRCUIT// 
+
+                        if(!String.isBlank(circuitId)){
+                        circuit__c c = new circuit__c ();
+                        c.circuitId__c = circuitId;
+                        c.Name = (String) ds.get('circuitName');
+                        c.url__c = (String) ds.get('url');
+                        if (ds.get('lat') != null) {
+                            c.Location__Latitude__s = Decimal.valueOf(String.valueOf(ds.get('lat')));
+                        }
+                        if (ds.get('long') != null) {
+                            c.Location__Longitude__s = Decimal.valueOf(String.valueOf(ds.get('long')));
+                        }
+                        c.locality__c = (String) ds.get('locality');
+                        c.country__c = (String) ds.get('country');
+
+
+                        circuitToUpsert.add(c);
+                        }
+                        
+                    }
+                       // UPSERT CIRCUIT
+
+                    if (!circuitToUpsert.isEmpty()) {
+                        Database.upsert(circuitToUpsert, circuit__c.Fields.circuitId__c, false);
+                        }
+                
+                        //CONSTRUCCION DE CONSULTA SOQL PARA CIRCUIT
+                    Map<String, Id> circuitMap = new Map<String, Id>();
+                        for(circuit__c c : [SELECT Id,circuitId__c FROM circuit__c WHERE circuitId__c IN :circuitIds]) {
+                            circuitMap.put(c.circuitId__c.trim().toLowerCase(), c.Id);
+                        }
+                        
+                       //ASIGANCION DE LOOKUPS
+                    Integer index = 0 ;
+                        for (Map<String, Object> ds : raceData){
+                            String CrId = ((String) ds.get('circuitId')).trim().toLowerCase();
+
+                            raceToInsert[index].circuit__c = circuitMap.get(CrId);
+                            index++;
+                        }
+
+                        // INSERT RACE
+
+
+
+                    if (!raceToInsert.isEmpty()) {
+                        Database.insert(raceToInsert, false);
+                        System.debug('Registros insertados: ' + raceToInsert.size());
+                    }
+                }
+
+
+}
+
+global class raceBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // Obtener datos desde la API
+             List<Map<String, Object>> raceData = race.giveRace();
+            System.debug('Cantidad de carreras obtenidas: ' + raceData.size());
+
+            List<race__c> raceToInsert = new List<race__c>();
+
+                    for (Map<String, Object> ds : raceData) {
+                        race__c r = new race__c();
+                        r.Name   = (String) ds.get('raceName');
+                        r.url__c = (String) ds.get('url');
+                        //r.round__c = (Integer) ds.get('round');
+                         r.round__c = ds.get('round') != null ? Integer.valueOf(String.valueOf(ds.get('round'))) : null;
+                        r.season__c =(String) ds.get('season');
+                        r.raceNameId__c = (String) ds.get ('raceName');
+                
+                        String timeStr = (String) ds.get('time'); // Ejemplo: "14:30:00"
+                            if (!String.isBlank(timeStr)) {
+                                List<String> parts = timeStr.replace('Z','').split(':');
+                                Integer hour = Integer.valueOf(parts[0]);
+                                Integer minute = Integer.valueOf(parts[1]);
+                                Integer second = Integer.valueOf(parts[2]);
+                                r.time__c = Time.newInstance(hour, minute, second, 0); // ✔ funciona en todas las versiones
+                            }
+                        String dateStr = (String) ds.get('date');
+                        if (!String.isBlank(dateStr)) {
+                            r.date__c = Date.valueOf(dateStr);
+                        }
+
+                        raceToInsert.add(r);
+                    }
+
+                    if (!raceToInsert.isEmpty()) {
+                        Database.insert(raceToInsert, false);
+                        System.debug('Registros insertados: ' + raceToInsert.size());
+                    }
+            // Upsert usando External Id constructorId__c
+            Database.UpsertResult[] results = Database.upsert(raceToInsert, race__c.Fields.raceNameId__c, false);
+
+            for (Database.UpsertResult r : results) {
+                if (!r.isSuccess()) {
+                    System.debug('Error al upsert: ' + r.getErrors()[0].getMessage());
+                }
+            }
+
+            System.debug('Constructores procesados: ' + raceToInsert.size());
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch finalizado.');
+    }
+ }
+
+public with sharing class result 
+{
+    @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> giveResults() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/results.json?limit=1000');
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+            
+            if (res.getStatusCode() == 200) {
+                Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
+                Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+                List<Object> racesList = (List<Object>) raceTable.get('Races');
+
+                for (Object raceObj : racesList) {
+                    Map<String, Object> raceMap = (Map<String, Object>) raceObj;
+
+                    // Datos del Race
+                    Object season = raceMap.get('season');
+                    Object round = raceMap.get('round');
+                    Object raceUrl = raceMap.get('url');
+                    Object raceName = raceMap.get('raceName');
+
+                    // Circuito
+                    Map<String, Object> circuitMap = (Map<String, Object>) raceMap.get('Circuit');
+                    Object circuitId = circuitMap != null ? circuitMap.get('circuitId') : null;
+                    Object circuitName = circuitMap != null ? circuitMap.get('circuitName') : null;
+                    Object circuitUrl = circuitMap != null ? circuitMap.get('url') : null;
+
+                    // Solo extraemos Results[]
+                    List<Object> resultsList = (List<Object>) raceMap.get('Results');
+                    if (resultsList != null) {
+                        for (Object resObj : resultsList) {
+                            Map<String, Object> resMap = (Map<String, Object>) resObj;
+
+                            // Crear un row NUEVO por cada resultado
+                            Map<String, Object> row = new Map<String, Object>();
+
+                            // Contexto de la carrera
+                            row.put('season', season);
+                            row.put('round', round);
+                            row.put('raceUrl', raceUrl);
+                            row.put('raceName', raceName);
+                            
+                            // Campos del resultado
+                            row.put('number', resMap.get('number'));
+                            row.put('position', resMap.get('position'));
+                            row.put('positionText', resMap.get('positionText'));
+                            row.put('points', resMap.get('points'));
+                            row.put('grid', resMap.get('grid'));
+                            row.put('laps', resMap.get('laps'));
+                            row.put('status', resMap.get('status'));
+
+                            // ========== FASTEST LAP (NUEVO) ==========
+                            Map<String, Object> fastestLapMap = (Map<String, Object>) resMap.get('FastestLap');
+                            if (fastestLapMap != null) {
+                                Object fastestLapRank = fastestLapMap.get('rank');
+                                row.put('fastestLapRank', fastestLapRank);
+                                row.put('fastestLapNumber', fastestLapMap.get('lap'));
+                                
+                                // Tiempo de la vuelta rápida
+                                Map<String, Object> fastestLapTime = (Map<String, Object>) fastestLapMap.get('Time');
+                                if (fastestLapTime != null) {
+                                    row.put('fastestLapTime', fastestLapTime.get('time'));
+                                }
+                                
+                                // Velocidad promedio
+                                Map<String, Object> avgSpeed = (Map<String, Object>) fastestLapMap.get('AverageSpeed');
+                                if (avgSpeed != null) {
+                                    row.put('fastestLapAvgSpeed', avgSpeed.get('speed'));
+                                }
+                            }
+
+                            // Driver
+                            Map<String, Object> driverMap = (Map<String, Object>) resMap.get('Driver');
+                            if (driverMap != null) {
+                                row.put('driverId', driverMap.get('driverId'));
+                                row.put('permanentNumber', driverMap.get('permanentNumber'));
+                                row.put('code', driverMap.get('code'));
+                                row.put('driverUrl', driverMap.get('url'));
+                                row.put('givenName', driverMap.get('givenName'));
+                                row.put('familyName', driverMap.get('familyName'));
+                                row.put('dateOfBirth', driverMap.get('dateOfBirth'));
+                                row.put('nationality', driverMap.get('nationality'));
+                            }
+
+                            // Constructor
+                            Map<String, Object> constructorMap = (Map<String, Object>) resMap.get('Constructor');
+                            if (constructorMap != null) {
+                                row.put('constructorId', constructorMap.get('constructorId'));
+                                row.put('constructorName', constructorMap.get('name'));
+                                row.put('constructorUrl', constructorMap.get('url'));
+                                row.put('constructorNat', constructorMap.get('nationality'));
+                            }
+
+                            // Circuit
+                            if (circuitMap != null) {
+                                row.put('circuitId', circuitId);
+                                row.put('circuitName', circuitName);
+                                row.put('circuitUrl', circuitUrl);
+                            }
+
+                            result.add(row);
+                        }
+                    }
+                }
+            } else {
+                System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
+            }
+                    
+        } catch (Exception e) {
+            System.debug('Excepción en giveResults: ' + e.getMessage());
+        }
+
+        return result;
+    }
+
+   
+    
+@AuraEnabled
+public static void saveResults() {
+    List<Map<String, Object>> resultsData = giveResults();
+    if (resultsData.isEmpty()) {
+        System.debug(LoggingLevel.WARN, 'No hay datos para procesar.');
+        return;
+    }
+
+    List<result__c> resultsToInsert = new List<result__c>();
+    List<Constructor__c> constructorsToUpsert = new List<Constructor__c>();
+    List<Driver__c> driversToUpsert = new List<Driver__c>();
+    List<Circuit__c> circuitsToUpsert = new List<Circuit__c>();
+
+    Set<String> driverIds = new Set<String>();
+    Set<String> constructorIds = new Set<String>();
+    Set<String> circuitIds = new Set<String>();
+
+    // 1. Preparar datos
+    for (Map<String, Object> ds : resultsData) {
+        String driverIdRaw = (String) ds.get('driverId');
+        String constructorIdRaw = (String) ds.get('constructorId');
+        String circuitIdRaw = (String) ds.get('circuitId');
+
+        String driverId = driverIdRaw != null ? driverIdRaw.trim().toLowerCase() : null;
+        String constructorId = constructorIdRaw != null ? constructorIdRaw.trim().toLowerCase() : null;
+        String circuitId = circuitIdRaw != null ? circuitIdRaw.trim().toLowerCase() : null;
+
+        if (!String.isBlank(driverId)) driverIds.add(driverId);
+        if (!String.isBlank(constructorId)) constructorIds.add(constructorId);
+        if (!String.isBlank(circuitId)) circuitIds.add(circuitId);
+
+        // Driver
+        if (!String.isBlank(driverId)) {
+            Driver__c d = new Driver__c();
+            d.driverId__c = driverId;
+            d.Name = buildDriverName(ds);
+            d.nationality__c = (String) ds.get('nationality');
+            d.url__c = (String) ds.get('driverUrl');
+            driversToUpsert.add(d);
+        }
+
+        // Constructor
+        if (!String.isBlank(constructorId)) {
+            Constructor__c c = new Constructor__c();
+            c.constructorId__c = constructorId;
+            c.Name = (String) ds.get('constructorName');
+            c.url__c = (String) ds.get('constructorUrl');
+            c.nationality__c = (String) ds.get('constructorNat');
+            constructorsToUpsert.add(c);
+        }
+
+        // Circuit
+        if (!String.isBlank(circuitId)) {
+            Circuit__c ci = new Circuit__c();
+            ci.circuitId__c = circuitId;
+            ci.Name = (String) ds.get('circuitName');
+            ci.url__c = (String) ds.get('circuitUrl');
+            circuitsToUpsert.add(ci);
+        }
+
+        // Result (sin Lookups aún)
+        result__c r = new result__c();
+        r.Name = (String) ds.get('raceName');
+        r.number__c = toInteger(ds.get('number'));
+        r.position__c = toInteger(ds.get('position'));
+        r.positionText__c = (String) ds.get('positionText');
+        r.points__c = toInteger(ds.get('points'));
+        r.grid__c = toInteger(ds.get('grid'));
+        r.laps__c = toInteger(ds.get('laps'));
+        r.status__c = (String) ds.get('status');
+        resultsToInsert.add(r);
+    }
+
+    // 2. Upsert Drivers, Constructors y Circuits
+    if (!driversToUpsert.isEmpty()) {
+        Database.upsert(driversToUpsert, Driver__c.Fields.driverId__c, false);
+    }
+    if (!constructorsToUpsert.isEmpty()) {
+        Database.upsert(constructorsToUpsert, Constructor__c.Fields.constructorId__c, false);
+    }
+    if (!circuitsToUpsert.isEmpty()) {
+        Database.upsert(circuitsToUpsert, Circuit__c.Fields.circuitId__c, false);
+    }
+
+    // 3. Consultar Ids reales y normalizar claves
+    Map<String, Id> driverMap = new Map<String, Id>();
+    for (Driver__c d : [SELECT Id, driverId__c FROM Driver__c WHERE driverId__c IN :driverIds]) {
+        driverMap.put(d.driverId__c.trim().toLowerCase(), d.Id);
+    }
+
+    Map<String, Id> constructorMap = new Map<String, Id>();
+    for (Constructor__c c : [SELECT Id, constructorId__c FROM Constructor__c WHERE constructorId__c IN :constructorIds]) {
+        constructorMap.put(c.constructorId__c.trim().toLowerCase(), c.Id);
+    }
+
+    Map<String, Id> circuitMap = new Map<String, Id>();
+    for (Circuit__c ci : [SELECT Id, circuitId__c FROM Circuit__c WHERE circuitId__c IN :circuitIds]) {
+        circuitMap.put(ci.circuitId__c.trim().toLowerCase(), ci.Id);
+    }
+
+    System.debug('driverMap: ' + driverMap);
+    System.debug('constructorMap: ' + constructorMap);
+    System.debug('circuitMap: ' + circuitMap);
+
+    // 4. Asignar Lookups
+    Integer index = 0;
+    for (Map<String, Object> ds : resultsData) {
+        String dId = ((String) ds.get('driverId')).trim().toLowerCase();
+        String cId = ((String) ds.get('constructorId')).trim().toLowerCase();
+        String ciId = ((String) ds.get('circuitId')).trim().toLowerCase();
+
+        resultsToInsert[index].Driver__c = driverMap.get(dId);
+        resultsToInsert[index].Constructor__c = constructorMap.get(cId);
+        resultsToInsert[index].Circuit__c = circuitMap.get(ciId);
+        index++;
+    }
+
+    // 5. Insert Results
+    if (!resultsToInsert.isEmpty()) {
+        Database.SaveResult[] sr = Database.insert(resultsToInsert, false);
+        Integer ok = 0, fail = 0;
+        for (Database.SaveResult s : sr) {
+            if (s.isSuccess()) {
+                ok++;
+            } else {
+                fail++;
+                for (Database.Error e : s.getErrors()) {
+                    System.debug('Error insert Result: ' + e.getStatusCode() + ' - ' + e.getMessage());
+                }
+            }
+        }
+        System.debug('Resultados procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
+    }
+}
+
+// Helpers
+private static Integer toInteger(Object val) {
+    if (val == null) return null;
+    try { return Integer.valueOf(String.valueOf(val)); } catch (Exception e) { return null; }
+}
+private static String buildDriverName(Map<String, Object> ds) {
+    String given = (String) ds.get('givenName');
+    String family = (String) ds.get('familyName');
+    String full = ((given != null ? given : '') + ' ' + (family != null ? family : '')).trim();
+    return String.isBlank(full) ? (String) ds.get('driverId') : full;
+}
+
+}
+
+// Version con upsert
+global class resultsBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // 1. Obtener datos desde la API
+            List<Map<String, Object>> resultsData = result.giveResults();
+            System.debug('Cantidad de resultados obtenidos: ' + resultsData.size());
+            
+            if (resultsData.isEmpty()) {
+                System.debug('No hay resultados para procesar.');
+                return;
+            }
+
+            // 2. Preparar listas y sets
+            List<result__c> resultsToUpsert = new List<result__c>();
+            List<Constructor__c> constructorsToUpsert = new List<Constructor__c>();
+            List<Driver__c> driversToUpsert = new List<Driver__c>();
+            List<Circuit__c> circuitsToUpsert = new List<Circuit__c>();
+
+            Set<String> driverIds = new Set<String>();
+            Set<String> constructorIds = new Set<String>();
+            Set<String> circuitIds = new Set<String>();
+
+            // 3. Primera pasada: recolectar IDs únicos
+            for (Map<String, Object> ds : resultsData) {
+                String driverId = normalize((String) ds.get('driverId'));
+                String constructorId = normalize((String) ds.get('constructorId'));
+                String circuitId = normalize((String) ds.get('circuitId'));
+
+                if (!String.isBlank(driverId)) driverIds.add(driverId);
+                if (!String.isBlank(constructorId)) constructorIds.add(constructorId);
+                if (!String.isBlank(circuitId)) circuitIds.add(circuitId);
+            }
+
+            // 4. Preparar Drivers, Constructors, Circuits para upsert
+            Set<String> processedDrivers = new Set<String>();
+            Set<String> processedConstructors = new Set<String>();
+            Set<String> processedCircuits = new Set<String>();
+
+            for (Map<String, Object> ds : resultsData) {
+                String driverId = normalize((String) ds.get('driverId'));
+                String constructorId = normalize((String) ds.get('constructorId'));
+                String circuitId = normalize((String) ds.get('circuitId'));
+
+                // Driver (solo uno por driverId)
+                if (!String.isBlank(driverId) && !processedDrivers.contains(driverId)) {
+                    Driver__c d = new Driver__c();
+                    d.driverId__c = driverId;
+                    d.Name = buildDriverName(ds);
+                    d.nationality__c = (String) ds.get('nationality');
+                    d.url__c = (String) ds.get('driverUrl');
+                    driversToUpsert.add(d);
+                    processedDrivers.add(driverId);
+                }
+
+                // Constructor (solo uno por constructorId)
+                if (!String.isBlank(constructorId) && !processedConstructors.contains(constructorId)) {
+                    Constructor__c c = new Constructor__c();
+                    c.constructorId__c = constructorId;
+                    c.Name = (String) ds.get('constructorName');
+                    c.url__c = (String) ds.get('constructorUrl');
+                    c.nationality__c = (String) ds.get('constructorNat');
+                    constructorsToUpsert.add(c);
+                    processedConstructors.add(constructorId);
+                }
+
+                // Circuit (solo uno por circuitId)
+                if (!String.isBlank(circuitId) && !processedCircuits.contains(circuitId)) {
+                    Circuit__c ci = new Circuit__c();
+                    ci.circuitId__c = circuitId;
+                    ci.Name = (String) ds.get('circuitName');
+                    ci.url__c = (String) ds.get('circuitUrl');
+                    circuitsToUpsert.add(ci);
+                    processedCircuits.add(circuitId);
+                }
+            }
+
+            // 5. Upsert Drivers, Constructors y Circuits
+            if (!driversToUpsert.isEmpty()) {
+                Database.upsert(driversToUpsert, Driver__c.Fields.driverId__c, false);
+            }
+            if (!constructorsToUpsert.isEmpty()) {
+                Database.upsert(constructorsToUpsert, Constructor__c.Fields.constructorId__c, false);
+            }
+            if (!circuitsToUpsert.isEmpty()) {
+                Database.upsert(circuitsToUpsert, Circuit__c.Fields.circuitId__c, false);
+            }
+
+            // 6. Consultar Ids reales
+            Map<String, Id> driverMap = new Map<String, Id>();
+            for (Driver__c d : [SELECT Id, driverId__c FROM Driver__c WHERE driverId__c IN :driverIds]) {
+                driverMap.put(normalize(d.driverId__c), d.Id);
+            }
+
+            Map<String, Id> constructorMap = new Map<String, Id>();
+            for (Constructor__c c : [SELECT Id, constructorId__c FROM Constructor__c WHERE constructorId__c IN :constructorIds]) {
+                constructorMap.put(normalize(c.constructorId__c), c.Id);
+            }
+
+            Map<String, Id> circuitMap = new Map<String, Id>();
+            for (Circuit__c ci : [SELECT Id, circuitId__c FROM Circuit__c WHERE circuitId__c IN :circuitIds]) {
+                circuitMap.put(normalize(ci.circuitId__c), ci.Id);
+            }
+
+            System.debug('driverMap: ' + driverMap);
+            System.debug('constructorMap: ' + constructorMap);
+            System.debug('circuitMap: ' + circuitMap);
+
+            // 7. Preparar Results con External ID
+            for (Map<String, Object> ds : resultsData) {
+                String driverId = normalize((String) ds.get('driverId'));
+                String constructorId = normalize((String) ds.get('constructorId'));
+                String circuitId = normalize((String) ds.get('circuitId'));
+                String season = String.valueOf(ds.get('season'));
+                String round = String.valueOf(ds.get('round'));
+
+                result__c r = new result__c();
+                
+                // ========== EXTERNAL ID ÚNICO (NUEVO) ==========
+                // Formato: "2024_1_verstappen" (season_round_driverId)
+                r.ResultKey__c = season + '_' + round + '_' + driverId;
+                
+                r.Name = (String) ds.get('raceName');
+                r.number__c = toInteger(ds.get('number'));
+                r.position__c = toInteger(ds.get('position'));
+                r.positionText__c = (String) ds.get('positionText');
+                r.points__c = toInteger(ds.get('points'));
+                r.grid__c = toInteger(ds.get('grid'));
+                r.laps__c = toInteger(ds.get('laps'));
+                r.status__c = (String) ds.get('status');
+                
+                // ========== FASTEST LAP ==========
+                Object fastestLapRank = ds.get('fastestLapRank');
+                if (fastestLapRank != null && String.valueOf(fastestLapRank) == '1') {
+                    r.Fastest_Lap__c = true;
+                } else {
+                    r.Fastest_Lap__c = false;
+                }
+                
+                // ========== LOOKUPS ==========
+                r.Driver__c = driverMap.get(driverId);
+                r.Constructor__c = constructorMap.get(constructorId);
+                r.Circuit__c = circuitMap.get(circuitId);
+                
+                resultsToUpsert.add(r);
+            }
+
+            // 8. UPSERT Results usando External ID
+            if (!resultsToUpsert.isEmpty()) {
+                Database.UpsertResult[] results = Database.upsert(resultsToUpsert, result__c.Fields.ResultKey__c, false);
+                
+                Integer ok = 0, fail = 0;
+                for (Database.UpsertResult ur : results) {
+                    if (ur.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        for (Database.Error e : ur.getErrors()) {
+                            System.debug('Error upsert Result: ' + e.getStatusCode() + ' - ' + e.getMessage());
+                        }
+                    }
+                }
+                System.debug('Resultados procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
+            }
+
+        } catch (Exception e) {
+            System.debug('Error en execute: ' + e.getMessage() + ' - ' + e.getStackTraceString());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch de Results finalizado.');
+    }
+
+    // Helpers
+    private static Integer toInteger(Object val) {
+        if (val == null) return null;
+        try { 
+            return Integer.valueOf(String.valueOf(val)); 
+        } catch (Exception e) { 
+            return null; 
+        }
+    }
+
+    private static String buildDriverName(Map<String, Object> ds) {
+        String given = (String) ds.get('givenName');
+        String family = (String) ds.get('familyName');
+        String full = ((given != null ? given : '') + ' ' + (family != null ? family : '')).trim();
+        return String.isBlank(full) ? (String) ds.get('driverId') : full;
+    }
+
+    private static String normalize(String val) {
+        return val != null ? val.trim().toLowerCase() : null;
+    }
+}
+
+public with sharing class season {
+    @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> giveSeason() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/seasons.json'); // Ajusta el Named Credential
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+                // Deserializamos la respuesta usando como modelado deserializeUntyped el cual reliza la 
+                //extracion en la misma pagina sin necesida de asociado dentro de las classes
+            if (res.getStatusCode() == 200) {
+         
+                Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                Map<String, Object> mrData = (Map<String, Object>) jsonMap.get('MRData');
+                Map<String, Object> SeasonTable = (Map<String, Object>) mrData.get('SeasonTable');
+                List<Object> SeasonsList = (List<Object>) SeasonTable.get('Seasons');
+
+                for (Object obj : SeasonsList) {
+                    Map<String, Object> Seasons = (Map<String, Object>) obj;    
+
+                    Map<String, Object> row = new Map<String, Object>();
+                    row.put('season', Seasons.get('season'));
+                    row.put('url', Seasons.get('url'));
+
+                    result.add(row);
+                }
+            } else {
+                System.debug('Error en la llamada HTTP: ' + res.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.debug('Excepción en obtenerCircuits: ' + e.getMessage());
+        }
+
+        return result;
+    }
+
+        // generamos el AuraEnabled, para poder hacer pruebas dentro de la Developer Consol, ademas se utilizara para ejecutar el batch para la carga y para las LWC
+
+
+            @AuraEnabled
+                public static void saveSeasion() {
+                    List<Map<String, Object>> seasonData = giveSeason();
+                    List<season__c> seasionToInsert = new List<season__c>();
+
+                    for (Map<String, Object> ls : seasonData) {
+                        season__c s = new season__c();
+                        s.Name = (String) ls.get('season');
+                        s.url__c = (String) ls.get('url');
+                        s.season__c = Integer.valueOf((String) ls.get('season'));
+                        seasionToInsert.add(s);
+                    }
+
+                    if (!seasionToInsert.isEmpty()) {
+                        Database.insert(seasionToInsert, false);
+                        System.debug('Registros insertados: ' + seasionToInsert.size());
+                    }
+                }
+}
+
+global class seasonBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // Obtener datos desde la API
+            List<Map<String, Object>> seasonData = season.giveSeason();
+            System.debug('Cantidad de temporadas obtenidas: ' + seasonData.size());
+
+            List<season__c> seasonsToUpsert = new List<season__c>();
+
+            for (Map<String, Object> ls : seasonData) {
+                season__c s = new season__c();
+
+                // URL
+                s.url__c = (String) ls.get('url');
+
+                // Conversión segura para season
+                Object seasonObj = ls.get('season');
+                if (seasonObj != null) {
+                    try {
+                        s.season__c = Integer.valueOf(String.valueOf(seasonObj));
+                    } catch (Exception e) {
+                        System.debug('Valor inválido para season: ' + seasonObj);
+                    }
+                }
+
+                seasonsToUpsert.add(s);
+            }
+
+            if (!seasonsToUpsert.isEmpty()) {
+                // Upsert usando season__c como External Id (recomendado marcarlo como tal)
+                Database.UpsertResult[] results = Database.upsert(seasonsToUpsert, season__c.Fields.season__c, false);
+
+                Integer ok = 0; Integer fail = 0;
+                for (Database.UpsertResult r : results) {
+                    if (r.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        System.debug('Error al upsert Season: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+
+                System.debug('Temporadas procesadas. Éxitos: ' + ok + ', Fallos: ' + fail);
+            } else {
+                System.debug('No hay temporadas para procesar.');
+            }
+
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch de Season finalizado.');
+    }
+}
+
+public with sharing class sprint {
+
+    @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> givesprint() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+        try {
+            Http http = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:pilotos2/ergast/f1/2025/sprint.json');
+            req.setMethod('GET');
+
+            HttpResponse res = http.send(req);
+
+            if (res.getStatusCode() == 200) {
+                Map<String, Object> jsonMap   = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                Map<String, Object> mrData    = (Map<String, Object>) jsonMap.get('MRData');
+                Map<String, Object> raceTable = (Map<String, Object>) mrData.get('RaceTable');
+                List<Object> racesList        = (List<Object>) raceTable.get('Races');
+
+                for (Object obj : racesList) {
+                    Map<String, Object> raceItem = (Map<String, Object>) obj;
+                    List<Object> sprintResults = (List<Object>) raceItem.get('SprintResults');
+                    if (sprintResults == null) continue;
+
+                    for (Object sprintObj : sprintResults) {
+                        Map<String, Object> sprintMap = (Map<String, Object>) sprintObj;
+
+                        Map<String, Object> row = new Map<String, Object>();
+                        row.put('number', sprintMap.get('number'));
+                        row.put('position', sprintMap.get('position'));
+                        row.put('positionText', sprintMap.get('positionText'));
+                        row.put('points', sprintMap.get('points'));
+                        row.put('grid', sprintMap.get('grid'));
+                        row.put('laps', sprintMap.get('laps'));
+                        row.put('status', sprintMap.get('status'));
+
+                        Map<String, Object> timeNode = (Map<String, Object>) sprintMap.get('Time');
+                        if (timeNode != null) {
+                            row.put('finishMillis', timeNode.get('millis'));
+                            row.put('finishTime', timeNode.get('time'));
+                        }
+
+                        Map<String, Object> fastestLap = (Map<String, Object>) sprintMap.get('FastestLap');
+                        if (fastestLap != null) {
+                            row.put('fastestRank', fastestLap.get('rank'));
+                            row.put('fastestLapNumber', fastestLap.get('lap'));
+                            row.put('fastestLapTime', fastestLap.get('time')); 
+                        }
+
+                        Map<String, Object> driver = (Map<String, Object>) sprintMap.get('Driver');
+                        if (driver != null) {
+                            row.put('driverId', driver.get('driverId'));
+                            row.put('driverCode', driver.get('code'));
+                            row.put('driverName', driver.get('givenName') + ' ' + driver.get('familyName'));
+                        }
+
+                        Map<String, Object> constructor = (Map<String, Object>) sprintMap.get('Constructor');
+                        if (constructor != null) {
+                            row.put('constructorName', constructor.get('name'));
+                        }
+
+                        row.put('raceName', raceItem.get('raceName'));
+                        row.put('round', raceItem.get('round'));
+                        row.put('date', raceItem.get('date'));
+
+                        result.add(row);
+                    }
+                }
+            } else {
+                System.debug('Error HTTP: ' + res.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.debug('Excepción en givesprint: ' + e.getMessage());
+        }
+
+        return result;
+    }
+
+  
+                @AuraEnabled
+                public static void savesprint() {
+                    List<Map<String, Object>> sprintData = givesprint();
+                    List<sprint__c> sprintToInsert = new List<sprint__c>();
+
+                    for (Map<String, Object> spr : sprintData) {
+                        sprint__c sp = new sprint__c();
+                        sp.number__c = Integer.valueOf(String.valueOf(spr.get('number')));
+                        sp.position__c = Integer.valueOf(String.valueOf(spr.get('position')));
+                        sp.points__c = Integer.valueOf(String.valueOf(spr.get('points')));
+                        sp.laps__c = Integer.valueOf(String.valueOf(spr.get('laps')));
+                        sp.status__c = (String) spr.get('status');                      
+                        sp.finishTime__c = parseSprintTime((String) spr.get('finishTime')); 
+                        sp.fastestLapTime__c = parseSprintTime((String) spr.get('fastestLapTime'));
+
+                        sprintToInsert.add(sp);
+                    }
+
+                    if (!sprintToInsert.isEmpty()) {
+                        Database.insert(sprintToInsert, false);
+                        System.debug('Registros insertados: ' + sprintToInsert.size());
+                    }
+                }
+
+                private static Time parseSprintTime(String val) {
+                    if (String.isBlank(val)) return null;
+                    List<String> parts = val.split(':');
+                    if (parts.size() != 2) return null;
+                    Integer minutes = Integer.valueOf(parts[0]);
+                    List<String> secAndMs = parts[1].split('\\.');
+                    Integer seconds = Integer.valueOf(secAndMs[0]);
+                    Integer millis = secAndMs.size() > 1 ? Integer.valueOf(secAndMs[1]) : 0;
+                    return Time.newInstance(0, minutes, seconds, millis);
+                }
+
+    
+}
+
+global class sprintBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // Obtener datos desde la API
+            List<Map<String, Object>> sprintData = sprint.givesprint();
+            System.debug('Cantidad de sprints obtenidos: ' + sprintData.size());
+
+            List<sprint__c> sprintsToUpsert = new List<sprint__c>();
+
+            for (Map<String, Object> spr : sprintData) {
+                sprint__c sp = new sprint__c();
+
+                // Conversión segura para campos numéricos
+                sp.number__c = toInteger(spr.get('number'));
+                sp.position__c = toInteger(spr.get('position'));
+                sp.points__c = toInteger(spr.get('points'));
+                sp.laps__c = toInteger(spr.get('laps'));
+
+                // Campos de texto
+                sp.status__c = (String) spr.get('status');
+
+                // Conversión segura para tiempos
+                sp.finishTime__c = parseSprintTime((String) spr.get('finishTime'));
+                sp.fastestLapTime__c = parseSprintTime((String) spr.get('fastestLapTime'));
+
+                sprintsToUpsert.add(sp);
+            }
+
+            if (!sprintsToUpsert.isEmpty()) {
+                // Upsert usando un identificador único (ideal: sprintId__c marcado como External Id)
+                Database.UpsertResult[] results = Database.upsert(sprintsToUpsert, sprint__c.Fields.Name, false);
+
+                Integer ok = 0; Integer fail = 0;
+                for (Database.UpsertResult r : results) {
+                    if (r.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        System.debug('Error al upsert Sprint: ' + r.getErrors()[0].getMessage());
+                    }
+                }
+
+                System.debug('Sprints procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
+            } else {
+                System.debug('No hay sprints para procesar.');
+            }
+
+        } catch (Exception e) {
+            System.debug('Error en batch: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch de Sprint finalizado.');
+    }
+
+    // Conversión segura para tiempo en formato mm:ss.ms
+    private static Time parseSprintTime(String val) {
+        if (String.isBlank(val)) return null;
+        try {
+            List<String> parts = val.split(':');
+            if (parts.size() != 2) return null;
+
+            Integer minutes = Integer.valueOf(parts[0]);
+            List<String> secAndMs = parts[1].split('\\.');
+            Integer seconds = Integer.valueOf(secAndMs[0]);
+            Integer millis = 0; // Salesforce Time no soporta milisegundos
+
+            return Time.newInstance(0, minutes, seconds, millis);
+        } catch (Exception e) {
+            System.debug('Formato inválido para tiempo: ' + val);
+            return null;
+        }
+    }
+
+    // Conversión segura para Integer
+    private static Integer toInteger(Object val) {
+        if (val == null) return null;
+        try { return Integer.valueOf(String.valueOf(val)); } catch (Exception e) { return null; }
+    }
+}
+
+public with sharing class status {
+   @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> giveStatus() {
+        List<Map<String, Object>> result = new List<Map<String, Object>>();
+
+                            try {
+                                Http http = new Http();
+                                HttpRequest req = new HttpRequest();
+                                req.setEndpoint('callout:pilotos2/ergast/f1/status.json'); 
+                                req.setMethod('GET');
+
+                                HttpResponse res = http.send(req);
+
+                                if (res.getStatusCode() == 200){
+
+                                    Map<String, Object> jsonMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                                    Map<String,Object> mrData = (Map<String,Object>)jsonMap.get('MRData');
+                                    Map<String,Object> statusTable = (Map<String,Object>)mrData.get('StatusTable');
+                                    list<Object> Statuslist = (list<Object>)statusTable.get('Status');
+                                    for (object obj : Statuslist){      
+                                        map<String,Object> status = (map<String,Object>)obj;         
+                                        Map<String,Object> row = new Map<String,Object>();
+                                        row.put('statusId', status.get('statusId'));
+                                        row.put('status', status.get('status'));
+                                        row.put('count', Integer.valueOf(String.valueOf(status.get('count'))));
+                                        result.add(row); 
+
+                                            result.add(row);
+                                        }
+
+                    
+
+                            }
+                            } catch (Exception e) {
+                                        System.debug('Error: ' + e.getMessage());
+                                    }
+                        return result;
+                        }   
+
+                @AuraEnabled
+                public static void SaveSatatus() {
+                    List<Map<String, Object>> statustData = giveStatus();
+                    List<Status__c> statustoInsert = new List<Status__c>();
+
+                    for (Map<String, Object> stat : statustData){
+
+                        status__c s = new status__c();
+                        s.statusId__c = Integer.valueOf(String.valueOf(stat.get('statusId')));
+                        s.count__c = Integer.valueOf(String.valueOf(stat.get('count')));
+                        s.status__c = (string)stat.get('status');
+                        s.name = (String)stat.get('statusId');
+                        statustoInsert.add(s);
+                }
+                if (!statustoInsert.isEmpty()) {
+                    Database.insert(statustoInsert, false);
+                    System.debug('Registros insertados: ' + statustoInsert.size());
+                }
+            }
+}
+
+global class statusBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+
+    global Iterable<SObject> start(Database.BatchableContext bc) {
+        // Dummy record para que el batch siempre se ejecute
+        return new List<SObject>{ new Account() };
+    }
+
+    global void execute(Database.BatchableContext bc, List<SObject> scope) {
+        try {
+            // Obtener datos desde la fuente (tu método existente)
+            List<Map<String, Object>> statusData = status.giveStatus();
+            System.debug('Cantidad de status obtenidos: ' + statusData.size());
+
+            List<status__c> statusesToUpsert = new List<status__c>();
+
+            for (Map<String, Object> stat : statusData) {
+                status__c s = new status__c();
+
+                // Conversión segura
+                s.statusId__c = toInteger(stat.get('statusId'));
+                s.status__c   = (String) stat.get('status');
+
+                // (Opcional) Si tienes más campos en el objeto status__c, mapealos aquí
+
+                statusesToUpsert.add(s);
+            }
+
+            if (!statusesToUpsert.isEmpty()) {
+                // Upsert usando el External Id statusId__c (recomendado marcarlo como External Id y Unique)
+                Database.UpsertResult[] results = Database.upsert(statusesToUpsert, status__c.Fields.statusId__c, false);
+
+                Integer ok = 0, fail = 0;
+                for (Database.UpsertResult ur : results) {
+                    if (ur.isSuccess()) {
+                        ok++;
+                    } else {
+                        fail++;
+                        Database.Error err = ur.getErrors()[0];
+                        System.debug('Error al upsert Status: ' + err.getStatusCode() + ' - ' + err.getMessage());
+                    }
+                }
+                System.debug('Status procesados. Éxitos: ' + ok + ', Fallos: ' + fail);
+            } else {
+                System.debug('No hay status para procesar.');
+            }
+
+        } catch (Exception e) {
+            System.debug('Error en batch (execute): ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext bc) {
+        System.debug('Batch de Status finalizado.');
+    }
+
+    // Helpers de conversión segura
+    private static Integer toInteger(Object val) {
+        if (val == null) return null;
+        try {
+            return Integer.valueOf(String.valueOf(val));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
+
+public with sharing class TeamFantasyController {
+    @AuraEnabled
+    public static Id createTeamFantasy(String driver1Id, String driver2Id, String driver3Id, String driver4Id, String driver5Id, String constructor1Id, String constructor2Id) {
+        Team_Fantasy__c teamFantasy = new Team_Fantasy__c();
+        
+        teamFantasy.Driver_1__c = driver1Id;
+        teamFantasy.Driver_2__c = driver2Id;
+        teamFantasy.Driver_3__c = driver3Id;
+        teamFantasy.Driver_4__c = driver4Id;
+        teamFantasy.Driver_5__c = driver5Id;
+        teamFantasy.Constructor_1__c = constructor1Id;
+        teamFantasy.Constructor_2__c = constructor2Id;
+
+        insert teamFantasy;
+
+        return teamFantasy.Id;
+    }
+}
+
+/**
+ * =====================================================
+ * ValueCalculatorService
+ * =====================================================
+ * Servicio para calcular y asignar Value__c a Drivers y Constructors
+ * basado en su rendimiento (puntos y victorias).
+ * 
+ * USO:
+ *   ValueCalculatorService.calculateAllValues();      // Ambos
+ *   ValueCalculatorService.calculateDriverValues();   // Solo Drivers
+ *   ValueCalculatorService.calculateConstructorValues(); // Solo Constructors
+ * 
+ * FÓRMULA:
+ *   Value = Base + (Points * factor) + (Wins * bonus)
+ * =====================================================
+ */
+public with sharing class ValueCalculatorService 
+{
+
+    // ==================== CONFIGURACIÓN DRIVERS ====================
+    private static final Decimal DRIVER_BASE_VALUE = 5.0;       // $5M mínimo
+    private static final Decimal DRIVER_POINTS_FACTOR = 0.05;   // $0.05M por punto
+    private static final Decimal DRIVER_WINS_BONUS = 0.5;       // $0.5M por victoria
+    private static final Decimal DRIVER_MAX_VALUE = 30.0;       // $30M máximo
+
+    // ==================== CONFIGURACIÓN CONSTRUCTORS ====================
+    private static final Decimal CONSTRUCTOR_BASE_VALUE = 15.0;     // $15M mínimo
+    private static final Decimal CONSTRUCTOR_POINTS_FACTOR = 0.04;  // $0.04M por punto
+    private static final Decimal CONSTRUCTOR_WINS_BONUS = 1.0;      // $1M por victoria
+    private static final Decimal CONSTRUCTOR_MAX_VALUE = 50.0;      // $50M máximo
+
+    /**
+     * Calcula y asigna valores a todos los Drivers y Constructors
+     */
+    public static void calculateAllValues() {
+        calculateDriverValues();
+        calculateConstructorValues();
+        System.debug('✅ Todos los valores calculados correctamente');
+    }
+
+    /**
+     * Calcula y asigna Value__c a todos los Drivers
+     * Fórmula: Base + (Points * factor) + (Wins * bonus)
+     * Rango: $5M - $30M
+     */
+    public static void calculateDriverValues() {
+        List<Driver__c> drivers = [
+            SELECT Id, Name, Total_Points__c, Wins__c, Value__c 
+            FROM Driver__c 
+            ORDER BY Total_Points__c DESC NULLS LAST
+        ];
+
+        if (drivers.isEmpty()) {
+            System.debug('⚠️ No se encontraron Drivers');
+            return;
+        }
+
+        System.debug('Calculando valores para ' + drivers.size() + ' drivers...');
+
+        List<Driver__c> driversToUpdate = new List<Driver__c>();
+
+        for (Driver__c d : drivers) {
+            Decimal points = d.Total_Points__c != null ? d.Total_Points__c : 0;
+            Decimal wins = d.Wins__c != null ? d.Wins__c : 0;
+
+            // Calcular valor
+            Decimal calculatedValue = DRIVER_BASE_VALUE 
+                + (points * DRIVER_POINTS_FACTOR) 
+                + (wins * DRIVER_WINS_BONUS);
+
+            // Aplicar máximo
+            if (calculatedValue > DRIVER_MAX_VALUE) {
+                calculatedValue = DRIVER_MAX_VALUE;
+            }
+
+            // Redondear a 1 decimal
+            calculatedValue = calculatedValue.setScale(1, RoundingMode.HALF_UP);
+
+            d.Value__c = calculatedValue;
+            driversToUpdate.add(d);
+
+            System.debug(d.Name + ' | Points: ' + points + ' | Wins: ' + wins + ' | Value: $' + calculatedValue + 'M');
+        }
+
+        if (!driversToUpdate.isEmpty()) {
+            update driversToUpdate;
+            System.debug('✅ ' + driversToUpdate.size() + ' drivers actualizados con Value__c');
+        }
+    }
+
+    /**
+     * Calcula y asigna Value__c a todos los Constructors
+     * Fórmula: Base + (Points * factor) + (Wins * bonus)
+     * Rango: $15M - $50M
+     */
+    public static void calculateConstructorValues() {
+        List<Constructor__c> constructors = [
+            SELECT Id, Name, Total_Points__c, Wins__c, Value__c 
+            FROM Constructor__c 
+            ORDER BY Total_Points__c DESC NULLS LAST
+        ];
+
+        if (constructors.isEmpty()) {
+            System.debug('⚠️ No se encontraron Constructors');
+            return;
+        }
+
+        System.debug('Calculando valores para ' + constructors.size() + ' constructors...');
+
+        List<Constructor__c> constructorsToUpdate = new List<Constructor__c>();
+
+        for (Constructor__c c : constructors) {
+            Decimal points = c.Total_Points__c != null ? c.Total_Points__c : 0;
+            Decimal wins = c.Wins__c != null ? c.Wins__c : 0;
+
+            // Calcular valor
+            Decimal calculatedValue = CONSTRUCTOR_BASE_VALUE 
+                + (points * CONSTRUCTOR_POINTS_FACTOR) 
+                + (wins * CONSTRUCTOR_WINS_BONUS);
+
+            // Aplicar máximo
+            if (calculatedValue > CONSTRUCTOR_MAX_VALUE) {
+                calculatedValue = CONSTRUCTOR_MAX_VALUE;
+            }
+
+            // Redondear a 1 decimal
+            calculatedValue = calculatedValue.setScale(1, RoundingMode.HALF_UP);
+
+            c.Value__c = calculatedValue;
+            constructorsToUpdate.add(c);
+
+            System.debug(c.Name + ' | Points: ' + points + ' | Wins: ' + wins + ' | Value: $' + calculatedValue + 'M');
+        }
+
+        if (!constructorsToUpdate.isEmpty()) {
+            update constructorsToUpdate;
+            System.debug('✅ ' + constructorsToUpdate.size() + ' constructors actualizados con Value__c');
+        }
+    }
+
+    /**
+     * Recalcula el valor de un Driver específico (útil para triggers)
+     * @param driverId Id del Driver a recalcular
+     */
+    public static void recalculateDriverValue(Id driverId) {
+        List<Driver__c> drivers = [
+            SELECT Id, Name, Total_Points__c, Wins__c, Value__c 
+            FROM Driver__c 
+            WHERE Id = :driverId
+        ];
+
+        if (drivers.isEmpty()) {
+            System.debug('⚠️ Driver no encontrado: ' + driverId);
+            return;
+        }
+
+        Driver__c d = drivers[0];
+        Decimal points = d.Total_Points__c != null ? d.Total_Points__c : 0;
+        Decimal wins = d.Wins__c != null ? d.Wins__c : 0;
+
+        Decimal calculatedValue = DRIVER_BASE_VALUE 
+            + (points * DRIVER_POINTS_FACTOR) 
+            + (wins * DRIVER_WINS_BONUS);
+
+        if (calculatedValue > DRIVER_MAX_VALUE) {
+            calculatedValue = DRIVER_MAX_VALUE;
+        }
+
+        d.Value__c = calculatedValue.setScale(1, RoundingMode.HALF_UP);
+        update d;
+
+        System.debug('✅ Driver ' + d.Name + ' actualizado: $' + d.Value__c + 'M');
+    }
+
+    /**
+     * Recalcula el valor de un Constructor específico (útil para triggers)
+     * @param constructorId Id del Constructor a recalcular
+     */
+    public static void recalculateConstructorValue(Id constructorId) {
+        List<Constructor__c> constructors = [
+            SELECT Id, Name, Total_Points__c, Wins__c, Value__c 
+            FROM Constructor__c 
+            WHERE Id = :constructorId
+        ];
+
+        if (constructors.isEmpty()) {
+            System.debug('⚠️ Constructor no encontrado: ' + constructorId);
+            return;
+        }
+
+        Constructor__c c = constructors[0];
+        Decimal points = c.Total_Points__c != null ? c.Total_Points__c : 0;
+        Decimal wins = c.Wins__c != null ? c.Wins__c : 0;
+
+        Decimal calculatedValue = CONSTRUCTOR_BASE_VALUE 
+            + (points * CONSTRUCTOR_POINTS_FACTOR) 
+            + (wins * CONSTRUCTOR_WINS_BONUS);
+
+        if (calculatedValue > CONSTRUCTOR_MAX_VALUE) {
+            calculatedValue = CONSTRUCTOR_MAX_VALUE;
+        }
+
+        c.Value__c = calculatedValue.setScale(1, RoundingMode.HALF_UP);
+        update c;
+
+        System.debug('✅ Constructor ' + c.Name + ' actualizado: $' + c.Value__c + 'M');
+    }
+}

@@ -7,7 +7,7 @@ public with sharing class race {
         try {
             Http http = new Http();
             HttpRequest req = new HttpRequest();
-            req.setEndpoint('callout:pilotos2/ergast/f1/2025/races.json'); // Named Credential
+            req.setEndpoint('callout:pilotos2/ergast/f1/2024/races.json'); // Named Credential
             req.setMethod('GET');
 
             HttpResponse res = http.send(req);
