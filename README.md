@@ -12,8 +12,8 @@ Plataforma Fantasy F1 desarrollada en Salesforce para Speed League, permitiendo 
 - **Juan Oliveros** - Consultor Funcional
 
 ### Roles y Responsabilidades
-- **Lead Developer**: Coordinación del equipo, arquitectura técnica y desarrollo de componentes complejos
-- **Developer**: Implementación de funcionalidades, integraciones y automatizaciones
+- **Lead Developer**: Coordinación del equipo, creación de clases apex.
+- **Developer**: Implementación de funcionalidades, integraciones apex y automatizaciones
 - **Consultor Funcional**: Análisis de requisitos, configuración de objetos y validación de procesos
 
 ## Arquitectura del Sistema
@@ -28,16 +28,16 @@ Plataforma Fantasy F1 desarrollada en Salesforce para Speed League, permitiendo 
                              │ Integración HTTP
                              ↓
 ┌─────────────────────────────────────────────────────────────┐
-│              Apex Batch Classes (Carga de Datos)            │
-│  • Circuitos  • Pilotos  • Escuderías  • Resultados        │
+│      Apex Queueable Class + Batch Class(Carga de Datos)     │
+│     • Circuitos  • Pilotos  • Escuderías  • Resultados      │
 └────────────────────────────┬────────────────────────────────┘
                              │
                              ↓
 ┌─────────────────────────────────────────────────────────────┐
-│                    Modelo de Datos Core                     │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │ Circuit  │  │  Driver  │  │Constructor│ │  Result  │   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+│                        Modelo de Datos                      │
+│  ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌──────────┐    │
+│  │ Circuit  │  │  Driver  │  │Constructor│  │  Result  │    │
+│  └──────────┘  └──────────┘  └───────────┘  └──────────┘    │
 │        │            │              │              │         │
 │        └────────────┴──────────────┴──────────────┘         │
 │                             │                               │
@@ -50,7 +50,7 @@ Plataforma Fantasy F1 desarrollada en Salesforce para Speed League, permitiendo 
               │                             │
               ↓                             ↓
 ┌──────────────────────┐       ┌─────────────────────────┐
-│   Experience Cloud   │       │  Salesforce Backoffice  │
+│   Experience Cloud   │       │Fórmula 1 - Liga Fantasy │
 │  (Usuarios Externos) │       │   (Usuarios Internos)   │
 └──────────────────────┘       └─────────────────────────┘
 ```
