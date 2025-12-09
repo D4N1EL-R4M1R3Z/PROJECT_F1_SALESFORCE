@@ -261,10 +261,10 @@
           "dropdownTextHoverColor" : "",
           "iconLinkColor" : "rgb(24, 24, 24)",
           "iconLinkHoverColor" : "rgb(145, 145, 145)",
-          "iconLinkTextShadowColor" : "rgba(0, 0, 0, 0)",
+          "iconLinkTextShadowColor" : "rgba(3, 3, 3, 0)",
           "linkActiveBorderColor" : "",
-          "linkColor" : "#747474",
-          "linkHoverColor" : "#747474",
+          "linkColor" : "rgb(255, 252, 252)",
+          "linkHoverColor" : "rgb(10, 9, 9)",
           "linkTextShadowColor" : "",
           "logoWidth" : "100",
           "searchPosition" : "right",
@@ -325,31 +325,10 @@
             "componentAttributes" : {
               "maxAutoCompleteResults" : 5,
               "searchLabel" : "Search...",
-              "searchObjects" : [ {
-                "isPublic" : false,
-                "name" : "Lead"
-              }, {
-                "isPublic" : false,
-                "name" : "Opportunity"
-              }, {
-                "isPublic" : false,
-                "name" : "ContentDocument"
-              }, {
-                "isPublic" : false,
-                "name" : "Case"
-              }, {
-                "isPublic" : false,
-                "name" : "Contact"
-              }, {
-                "isPublic" : false,
-                "name" : "Account"
-              }, {
-                "isPublic" : false,
-                "name" : "Order"
-              } ]
+              "searchObjects" : ""
             },
             "componentName" : "forceCommunity:globalSearchInput",
-            "id" : "fec3bd6b-f178-4ce0-8d39-25c81d04b168",
+            "id" : "3162159f-74b8-4b60-91fa-fdec22b559b8",
             "renditionMap" : { },
             "type" : "component"
           } ],
@@ -359,14 +338,12 @@
         }, {
           "components" : [ {
             "componentAttributes" : {
-              "NavigationMenuEditorRefresh" : "",
-              "alignment" : "left",
-              "showAppLauncher" : false,
-              "showBackLabel" : false,
-              "showHomeLink" : true
+              "navAlignment" : "left",
+              "navItemThreshold" : 8,
+              "navigationMenuEditorRefresh" : ""
             },
-            "componentName" : "forceCommunity:multiLevelNavigationWrapper",
-            "id" : "7770c517-06a2-448b-869d-19b4a7a89d5d",
+            "componentName" : "forceCommunity:themeNav",
+            "id" : "b64546e1-8f6e-4703-bc40-d984570782c8",
             "renditionMap" : { },
             "type" : "component"
           } ],
@@ -383,7 +360,7 @@
     }, {
       "components" : [ {
         "componentAttributes" : {
-          "richTextValue" : "<div id='placeholderBanner' style='position: relative; height: 485px; width: 100%; display: flex; align-items: center; color: white; font-family: Arial, sans-serif; overflow: hidden;'>             <img src='/sfsites/assets/Images/PrmEnhancedBanner/PrmEnhancedBanner.png' alt='Banner' style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;' />             <div style='position: relative; z-index: 2; padding: 3rem; max-width: 60%; text-align: left;'>                 <h1 style='font-size: 3rem; margin-bottom: 1.5rem; font-weight: bold; line-height: 1.2; color: #333333;'>Welcome Partners or Highlight Key Updates</h1>                 <p style='font-size: 1.25rem; margin-bottom: 2rem; line-height: 1.4; color: #666666;'>Use this space to share a message that aligns with your goals-from onboarding to announcements. This area is fully customizable to fit your needs.</p>             </div>         </div>"
+          "richTextValue" : "<div id='placeholderBanner' style='position: relative; height: 485px; width: 100%; display: flex; align-items: center; color: white; font-family: Arial, sans-serif; overflow: hidden;'>             <img src='/sfsites/assets/Images/PrmEnhancedBanner/PrmEnhancedBanner.png' alt='Banner' style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;' />             <div style='position: relative; z-index: 2; padding: 3rem; max-width: 60%; text-align: left;'>                 <h1 style='font-size: 3rem; margin-bottom: 1.5rem; font-weight: bold; line-height: 1.2; color: #333333;'>Welcome to F1 fantasy team</h1>                 <p style='font-size: 1.25rem; margin-bottom: 2rem; line-height: 1.4; color: #666666;'>Create your team and compete.</p>             </div>         </div>"
         },
         "componentName" : "forceCommunity:htmlBlock",
         "id" : "18ac26b1-bee2-4707-bb07-645e99ba687d",

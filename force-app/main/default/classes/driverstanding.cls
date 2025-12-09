@@ -36,6 +36,11 @@ public with sharing class driverstanding {
                                     row.put('position', ds.position);
                                     row.put('points', ds.points);
                                     row.put('wins', ds.wins);
+
+                                    // constructor id
+                                    if (ds.Constructors != null && !ds.Constructors.isEmpty()) {
+                                        row.put('constructorId', ds.Constructors[0].ConstructorId);
+                                    }
                                     result.add(row);
                                 }
                             }

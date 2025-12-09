@@ -1,0 +1,56 @@
+<!-- force-app/main/default/lwc/raceResults/raceResults.html -->
+<template>
+    <lightning-card title="Resultados Recientes" icon-name="custom:custom63">
+        <template if:true={loaded}>
+            <div class="slds-p-around_small">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <th scope="col">Posición</th>
+                            <th scope="col">Piloto</th>
+                            <th scope="col">Constructor</th>
+                            <th scope="col" class="slds-text-align_right">Tiempo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={data} for:item="r">
+                            <tr key={r.driverId}>
+                                <td>{r.position}</td>
+                                <td class="slds-cell-wrap">
+                                    <div class="slds-grid slds-grid_vertical-align-center">
+                                        <lightning-avatar
+                                            class="avatar"
+                                            size="small"
+                                            variant="circle"
+                                            src={r.photoUrl}
+                                            fallback-icon-name="standard:user">
+                                        </lightning-avatar>
+                                        <a class="slds-m-left_small pilot-link"
+                                           onclick={handleNavigate}
+                                           data-id={r.driverId}>
+                                           {r.driverName}
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>{r.team}</td>
+                                <td class="slds-text-align_right time-cell">{r.time}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+
+        <template if:false={loaded}>
+            <div class="slds-p-around_medium slds-grid slds-grid_align-center">
+                <lightning-spinner alternative-text="Cargando" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={error}>
+            <div class="slds-p-around_small slds-text-color_error">
+                {errorMessage}
+            </div>
+        </template>
+    </lightning-card>
+</template>

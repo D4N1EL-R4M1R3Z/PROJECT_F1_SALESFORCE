@@ -39,6 +39,19 @@
       "regions" : [ {
         "components" : [ {
           "componentAttributes" : {
+            "cacheAge" : 1440,
+            "filterName" : "",
+            "reportId" : "standings_table_MNt",
+            "showRefreshButton" : true,
+            "showTitle" : true
+          },
+          "componentName" : "forceCommunity:reportChart",
+          "id" : "3b2819a0-f448-420d-8d8b-34f64c2a0148",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        }, {
+          "componentAttributes" : {
             "richTextValue" : "                <h2 class=\"quickLinksTitle\">                    Quick Links                </h2>            "
           },
           "componentName" : "forceCommunity:htmlBlock",
@@ -53,6 +66,16 @@
           },
           "componentName" : "runtime_sales_prm:tileMenuWrapperPRM",
           "id" : "f61db1f0-3542-40e2-b2e4-d08af04207e3",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        }, {
+          "componentAttributes" : {
+            "height" : "1100",
+            "recordId" : "xfSwJbHBwnDYKMYqsMVameaRdgBMZG"
+          },
+          "componentName" : "forceCommunity:dashboard",
+          "id" : "a351f814-a33b-4247-a839-72bf8df34f93",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"

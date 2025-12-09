@@ -3,16 +3,8 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentInstanceProperties>
-                    <name>decorate</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>richTextValue</name>
-                    <value>&lt;p style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;https://curious-raccoon-cyngq1-dev-ed.trailblaze.file.force.com/servlet/rtaImage?refid=0EMfj000000a9RN&quot;&gt;&lt;/p&gt;</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:richText</componentName>
-                <identifier>flexipage_richText</identifier>
+                <componentName>f1banner</componentName>
+                <identifier>c_f1banner2</identifier>
             </componentInstance>
         </itemInstances>
         <name>top</name>
@@ -26,31 +18,21 @@
                     <value>#1b66e4</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>iconName</name>
-                    <value>utility:track</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>listViewApiName</name>
-                    <value>All</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>objectApiName</name>
-                    <value>circuit__c</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>targetTabValue</name>
-                    <value>circuit__c</value>
+                    <value>circuit</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>textColor</name>
                     <value>#ffffff</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Total de Circuitos</value>
-                </componentInstanceProperties>
-                <componentName>kpiTile</componentName>
-                <identifier>c_kpiTile</identifier>
+                <componentName>kpiCircuits</componentName>
+                <identifier>c_kpiCircuits</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentName>homeF1</componentName>
+                <identifier>c_homeF1</identifier>
             </componentInstance>
         </itemInstances>
         <name>left</name>
@@ -64,33 +46,15 @@
                     <value>#1b66e4</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>iconName</name>
-                    <value>utility:summary</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>listViewApiName</name>
-                    <value>All</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>objectApiName</name>
-                    <value>Circuito__c</value>
+                    <name>targetTabValue</name>
+                    <value>driver</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>textColor</name>
                     <value>#ffffff</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Total</value>
-                </componentInstanceProperties>
-                <componentName>kpiTile</componentName>
-                <identifier>c_kpiTile2</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentName>result</componentName>
-                <identifier>c_result</identifier>
+                <componentName>kpiDrivers</componentName>
+                <identifier>c_kpiDrivers</identifier>
             </componentInstance>
         </itemInstances>
         <name>middle</name>
@@ -104,33 +68,21 @@
                     <value>#1b66e4</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>iconName</name>
-                    <value>utility:summary</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>listViewApiName</name>
-                    <value>All</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>objectApiName</name>
-                    <value>Circuito__c</value>
+                    <name>targetTabValue</name>
+                    <value>Constructors</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>textColor</name>
                     <value>#ffffff</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Total</value>
-                </componentInstanceProperties>
-                <componentName>kpiTile</componentName>
-                <identifier>c_kpiTile3</identifier>
+                <componentName>kpiConstructor</componentName>
+                <identifier>c_kpiConstructor</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
-                <componentName>circuit</componentName>
-                <identifier>c_circuit2</identifier>
+                <componentName>resultsCar</componentName>
+                <identifier>c_resultsCar</identifier>
             </componentInstance>
         </itemInstances>
         <name>right</name>

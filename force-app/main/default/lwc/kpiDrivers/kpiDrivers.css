@@ -1,0 +1,7 @@
+:host { display: block; }
+.kpi { border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); text-align: center; }
+.kpi-title { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.kpi-icon { --slds-c-icon-color-foreground: currentColor; --slds-c-icon-color-background: transparent; }
+.kpi-value { font-size: 40px; font-weight: 800; line-height: 1; }
+.kpi-error { margin-top: 6px; font-size: 12px; opacity: 0.9; }
+.clickable { cursor: pointer; }

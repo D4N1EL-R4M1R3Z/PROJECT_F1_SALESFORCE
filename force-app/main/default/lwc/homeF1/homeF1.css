@@ -1,0 +1,48 @@
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.column {
+  background: white;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+/* Encabezados y líneas, estilo parecido a Salesforce */
+.list-header {
+  border-bottom: 1px solid #e5e5e5;
+  padding: 10px 0;
+  font-weight: 600;
+  color: #514f4f;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f2f2;
+  color: #080707;
+}
+
+.datatable {
+  --lwc-borderWidthThin: 1px;
+}
+
+.error {
+  color: #c23934; /* rojo SLDS */
+  padding: 8px 0;
+}
+
+.actions {
+  margin-top: 12px;
+}

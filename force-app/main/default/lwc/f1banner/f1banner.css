@@ -1,0 +1,14 @@
+.banner-area {
+    display: flex;
+    justify-content: center;     /* centra horizontal */
+    align-items: center;         /* centra vertical */
+    width: 100%;
+    min-height: 350px;           /* alto del área del banner */
+}
+.banner-img {
+    max-width: 1600px;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}

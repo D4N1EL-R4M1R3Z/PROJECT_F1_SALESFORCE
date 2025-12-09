@@ -1,0 +1,13 @@
+/* force-app/main/default/lwc/raceResults/raceResults.css */
+:host {
+    display: block;
+}
+.avatar {
+    --slds-c-avatar-radius-border: 50%;
+}
+.pilot-link {
+    font-weight: 600;
+}
+.time-cell {
+    font-variant-numeric: tabular-nums; /* alinea dígitos */
+}

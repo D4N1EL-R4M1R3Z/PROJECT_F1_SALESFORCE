@@ -1,0 +1,62 @@
+<template>
+  <lightning-card title="F1 " icon-name="utility:table">
+    <div class="container">
+      <!-- Columna: Circuitos -->
+      <section class="column">
+        <h2 class="title">Circuitos</h2>
+
+
+        <template if:true={circuits}>
+           
+            <lightning-datatable
+            key-field="Id"
+            data={circuits}
+            columns={circuitColumns}
+            hide-checkbox-column 
+            resize-column-disabled
+            suppress-bottom-bar
+            class="datatable"
+          >
+          </lightning-datatable>
+          
+          
+            <!-- <ul class="list">
+            <template for:each={circuits} for:item="c">
+              <li key={c.Id} class="list-item">{c.Name}</li>
+            </template>
+        </ul> -->
+    
+        </template>
+
+        <template if:true={errorCircuits}>
+          <div class="error">Error al cargar circuitos</div>
+        </template>
+      </section>
+
+      <!-- Columna: Constructores -->
+      <section class="column">
+        <h2 class="title">Constructores</h2>
+
+        <template if:true={constructors}>
+          <lightning-datatable
+            key-field="Id"
+            data={constructors}
+            columns={constructorColumns}
+            hide-checkbox-column 
+            resize-column-disabled
+            suppress-bottom-bar
+            class="datatable"
+          >
+          </lightning-datatable>
+        </template>
+
+        <template if:true={errorConstructors}>
+          <div class="error">Error al cargar constructores</div>
+        </template>
+      </section>
+    </div>
+
+    <!-- Botón manual por si se requiere forzar actualización -->
+   
+  </lightning-card>
+</template>

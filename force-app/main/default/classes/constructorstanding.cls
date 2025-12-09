@@ -61,8 +61,7 @@ public with sharing class constructorstanding {
                     List<Map<String,Object>> constructorTable = givenconstructorstanding();
                     List<constructorstanding__c> constructorstandingToInsert = new List<constructorstanding__c>();
 
-                    for (Map<String,Object> cons : constructorTable) 
-                    {
+                    for (Map<String,Object> cons : constructorTable) {
                         constructorstanding__c constStad = new constructorstanding__c();
                         constStad.Name = (String) cons.get('name');
                         constStad.constructorId__c = (String) cons.get('constructorId');
@@ -82,10 +81,9 @@ public with sharing class constructorstanding {
                       //  constStad.round__c = (Integer) cons.get('round');
                         constructorstandingToInsert.add(constStad);
                     }
-                    if (!constructorstandingToInsert.isEmpty()) 
-                    {
+                    if (!constructorstandingToInsert.isEmpty()) {
                         Database.insert(constructorstandingToInsert, false);
                         System.debug('Registros insertados: ' + constructorstandingToInsert.size());
-                    }
+                }
                 }
 }

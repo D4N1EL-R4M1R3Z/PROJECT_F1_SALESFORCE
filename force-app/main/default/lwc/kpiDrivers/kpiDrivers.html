@@ -1,0 +1,15 @@
+<template>
+  <div class="kpi clickable" style={computedStyle} onclick={notifyClick}>
+    <div class="kpi-title">
+      <lightning-icon icon-name="utility:track" size="small" class="kpi-icon"></lightning-icon>
+      <span>Total de Drivers</span>
+    </div>
+    <div class="kpi-value">
+      <template if:true={isLoading}>—</template>
+      <template if:false={isLoading}>{total}</template>
+    </div>
+    <template if:true={error}>
+      <div class="kpi-error">Sin datos</div>
+    </template>
+  </div>
+</template>

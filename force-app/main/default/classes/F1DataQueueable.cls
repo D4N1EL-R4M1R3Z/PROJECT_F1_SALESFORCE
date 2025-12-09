@@ -40,6 +40,7 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
     private static final Decimal CONSTRUCTOR_POINTS_FACTOR = 0.04;
     private static final Decimal CONSTRUCTOR_WINS_BONUS = 1.0;
     private static final Decimal CONSTRUCTOR_MAX_VALUE = 50.0;
+    private static final String SEASON = '2024';
 
     // ==================== CONTROL DE PASOS ====================
     private Integer currentStep;
@@ -82,13 +83,13 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
             // Encadenar siguiente paso si no es el último
             if (currentStep < 6) {
                 System.enqueueJob(new F1DataQueueable(currentStep + 1));
-                System.debug('➡️ Encolado paso ' + (currentStep + 1));
+                System.debug('Encolado paso ' + (currentStep + 1));
             } else {
-                System.debug('🏁 F1DataQueueable COMPLETADO - Todos los pasos ejecutados');
+                System.debug('F1DataQueueable COMPLETADO - Todos los pasos ejecutados');
             }
 
         } catch (Exception e) {
-            System.debug('❌ ERROR en paso ' + currentStep + ': ' + e.getMessage() + ' - ' + e.getStackTraceString());
+            System.debug('ERROR en paso ' + currentStep + ': ' + e.getMessage() + ' - ' + e.getStackTraceString());
             // Opcional: continuar con el siguiente paso aunque falle uno
             if (currentStep < 6) {
                 System.enqueueJob(new F1DataQueueable(currentStep + 1));
@@ -126,83 +127,117 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
         }
     }
 
-    // ==================== PASO 2: CONSTRUCTOR STANDINGS + VALUE ====================
-    private void syncConstructorStandings() {
+    // ==================== STEP 2: CONSTRUCTOR STANDINGS + VALUE ====================
+    private void syncConstructorStandings() 
+    {
         System.debug('--- Sincronizando Constructor Standings + Value ---');
-        
+    
         List<Map<String, Object>> standingsData = constructorStanding.givenconstructorstanding();
-        
-        
-        if (standingsData == null || standingsData.isEmpty()) {
-            System.debug('⚠️ No hay datos de constructor standings');
+    
+        if (standingsData == null || standingsData.isEmpty()) 
+        {
+            System.debug('No hay datos de constructor standings');
             return;
         }
-        // Listas para actualizaciones e inserciones
-        List<Constructor__c> constructorsToUpdate = new List<Constructor__c>();
+
+        // 1. FIRST: Create constructorstanding__c
         List<constructorstanding__c> constructorstandingToInsert = new List<constructorstanding__c>();
-        
-        // for para procesar cada registro de standings en constructors y constructorstanding
-        for (Map<String, Object> s : standingsData) {
+
+        for (Map<String, Object> s : standingsData) 
+        {
+            constructorstanding__c constStad = new constructorstanding__c();
+            constStad.Name = (String) s.get('name');
+            constStad.constructorId__c = (String) s.get('constructorId');
+            constStad.url__c = (String) s.get('url');
+            constStad.nationality__c = (String) s.get('nationality');
+            constStad.positionText__c = toInteger(s.get('positionText'));
+            constStad.position__c = toInteger(s.get('position'));    
+            constStad.points__c = toInteger(s.get('points'));
+            constStad.season__c = toInteger(s.get('season'));    
+            constStad.round__c = toInteger(s.get('round'));
+            constStad.wins__c = (String) s.get('wins');
+            constructorstandingToInsert.add(constStad);
+        }
+
+        // 2. Upsert constructorstanding__c
+        if (!constructorstandingToInsert.isEmpty()) 
+        {
+            Database.UpsertResult[] results = Database.upsert(constructorstandingToInsert, constructorstanding__c.Fields.constructorId__c, false);
+            logResults('Constructor Standing Records', results);
+        }
+
+        // 3. Get map of standing IDs
+        Map<String, Id> standingMap = new Map<String, Id>();
+        for (constructorstanding__c cs : [SELECT Id, constructorId__c FROM constructorstanding__c WHERE constructorId__c != null]) {
+            standingMap.put(normalize(cs.constructorId__c), cs.Id);
+        }
+
+        // 4. Create/Update Constructor__c with Lookup relationship
+        List<Constructor__c> constructorsToUpdate = new List<Constructor__c>();
+
+        for (Map<String, Object> s : standingsData) 
+        {
             String constructorId = normalize((String) s.get('constructorId'));
             Integer wins = toInteger(s.get('wins'));
             Integer points = toInteger(s.get('points'));
-            
-            // Actualizar Constructor__c
+
             Constructor__c cons = new Constructor__c();
             cons.constructorId__c = constructorId;
             cons.Wins__c = wins;
             cons.Total_Points__c = points;
             cons.Value__c = calculateConstructorValue(points, wins);
+        
+            // Assign Lookup to Standing Constructor
+            if (standingMap.containsKey(constructorId)) 
+            {
+                cons.Constructor_standing__c = standingMap.get(constructorId);
+            }
 
-            // Insertar constructorstanding__c
-            constructorstanding__c constStad = new constructorstanding__c();
-            constStad.Name = (String) s.get('name');
-            constStad.constructorId__c = (String) s.get('constructorId');
-            constStad.url__c = (String) s.get('url'); 
-            constStad.nationality__c = (String) s.get('nationality');
-            constStad.positionText__c = s.get('positionText') != null ? Integer.valueOf(String.valueOf(s.get('positionText'))) : null;
-            constStad.position__c = s.get('position') != null ? Integer.valueOf(String.valueOf(s.get('position'))) : null;    
-            constStad.points__c = s.get('points') != null ? Integer.valueOf(String.valueOf(s.get('points'))) : null;
-            constStad.season__c = s.get('season') != null ? Integer.valueOf(String.valueOf(s.get('season'))) : null;    
-            constStad.round__c = s.get('round') != null ? Integer.valueOf(String.valueOf(s.get('round'))) : null;
-            constStad.wins__c = (String) s.get('wins');
-
-            constructorstandingToInsert.add(constStad);
             constructorsToUpdate.add(cons);
-            
+        
             System.debug(s.get('name') + ' | Wins: ' + wins + ' | Points: ' + points + ' | Value: $' + cons.Value__c + 'M');
         }
 
-        // Upsert de Constructors
-        if (!constructorsToUpdate.isEmpty()) {
+        // 5. Upsert Constructor__c
+        if (!constructorsToUpdate.isEmpty()) 
+        {
             Database.UpsertResult[] results = Database.upsert(constructorsToUpdate, Constructor__c.Fields.constructorId__c, false);
-            logResults('Constructor Standings', results);
+            logResults('Constructors', results);
         }
-        
-        // Upsert de constructorstanding__c
-        if (!constructorstandingToInsert.isEmpty()) {
-            Database.UpsertResult[] standingResults = Database.upsert(constructorstandingToInsert, constructorstanding__c.Fields.constructorId__c, false);
-            logResults('Constructor Standings Records', standingResults);
-        }
-
     }
+
 
     // ==================== PASO 3: DRIVERS ====================
     private void syncDrivers() {
         System.debug('--- Sincronizando Drivers ---');
-        
+    
         List<Map<String, Object>> driverData = driver.givenDriver();
-        
+    
         if (driverData == null || driverData.isEmpty()) {
             System.debug('⚠️ No hay datos de drivers');
             return;
         }
 
+        // FILTRO: Obtener driverIds que tienen standings
+        Set<String> driversConStandings = new Set<String>();
+        List<Map<String, Object>> standingsData = driverstanding.obtenerClasificacion();
+        for (Map<String, Object> s : standingsData) {
+            driversConStandings.add(normalize((String) s.get('driverId')));
+        }
+        System.debug('Drivers con standings: ' + driversConStandings.size());
+
         List<Driver__c> driversToUpsert = new List<Driver__c>();
 
         for (Map<String, Object> d : driverData) {
+            String driverId = normalize((String) d.get('driverId'));
+        
+            // Solo procesar si tiene standings
+            if (!driversConStandings.contains(driverId)) {
+                continue;
+            }
+        
             Driver__c drv = new Driver__c();
-            drv.driverId__c = normalize((String) d.get('driverId'));
+            drv.driverId__c = driverId;
             drv.Name = (String) d.get('givenName') + ' ' + (String) d.get('familyName');
             drv.givenName__c = (String) d.get('givenName');
             drv.familyName__c = (String) d.get('familyName');
@@ -210,7 +245,7 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
             drv.permanentNumber__c = toInteger(d.get('permanentNumber'));
             drv.nationality__c = (String) d.get('nationality');
             drv.url__c = (String) d.get('url');
-            
+        
             Object dob = d.get('dateOfBirth');
             if (dob != null) {
                 try {
@@ -223,9 +258,11 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
                     System.debug('Error parsing dateOfBirth: ' + dob);
                 }
             }
-            
+
             driversToUpsert.add(drv);
         }
+
+        System.debug('Drivers a procesar (con standings): ' + driversToUpsert.size());
 
         if (!driversToUpsert.isEmpty()) {
             Database.UpsertResult[] results = Database.upsert(driversToUpsert, Driver__c.Fields.driverId__c, false);
@@ -233,58 +270,7 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
         }
     }
 
-    // ==================== PASO 4: DRIVER STANDINGS + VALUE + CONSTRUCTOR ====================
-    // private void syncDriverStandings() {
-    //     System.debug('--- Sincronizando Driver Standings + Value ---');
-        
-    //     List<Map<String, Object>> standingsData = driverstanding.obtenerClasificacion();
-        
-    //     if (standingsData == null || standingsData.isEmpty()) {
-    //         System.debug('⚠️ No hay datos de driver standings');
-    //         return;
-    //     }
-
-    //     // Obtener mapa de Constructor IDs
-    //     Map<String, Id> constructorMap = getConstructorMap();
-
-    //     List<Driver__c> driversToUpdate = new List<Driver__c>();
-
-    //     for (Map<String, Object> s : standingsData) {
-    //         String driverId = normalize((String) s.get('driverId'));
-    //         Integer wins = toInteger(s.get('wins'));
-    //         Integer points = toInteger(s.get('points'));
-
-    //         Driver__c drv = new Driver__c();
-    //         drv.driverId__c = driverId;
-    //         drv.Wins__c = wins;
-    //         drv.Total_Points__c = points;
-    //         drv.Value__c = calculateDriverValue(points, wins);
-
-    //         // Buscar Constructor desde los datos de standings si está disponible
-    //         // Si no, usar el mapa de driver-constructor de results
-    //         String constructorId = (String) s.get('constructorId');
-    //         if (String.isBlank(constructorId)) {
-    //             // Intentar obtener de results
-    //             Map<String, String> driverConstructorMap = driver.getDriverConstructorMap();
-    //             constructorId = driverConstructorMap.get((String) s.get('driverId'));
-    //         }
-            
-    //         if (String.isNotBlank(constructorId) && constructorMap.containsKey(normalize(constructorId))) {
-    //             drv.Constructor__c = constructorMap.get(normalize(constructorId));
-    //         }
-
-    //         driversToUpdate.add(drv);
-            
-    //         System.debug(s.get('givenName') + ' ' + s.get('familyName') + 
-    //             ' | Wins: ' + wins + ' | Points: ' + points + ' | Value: $' + drv.Value__c + 'M');
-    //     }
-
-    //     if (!driversToUpdate.isEmpty()) {
-    //         Database.UpsertResult[] results = Database.upsert(driversToUpdate, Driver__c.Fields.driverId__c, false);
-    //         logResults('Driver Standings', results);
-    //     }
-    // }
-    // ==================== PASO 4: DRIVER STANDINGS + VALUE + CONSTRUCTOR ====================
+    // ==================== STEP 4: DRIVER STANDINGS + VALUE + CONSTRUCTOR ====================
     private void syncDriverStandings() {
         System.debug('--- Sincronizando Driver Standings + Value ---');
     
@@ -295,40 +281,10 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
             return;
         }
 
-        // Obtener mapa de Constructor IDs
-        Map<String, Id> constructorMap = getConstructorMap();
-    
-        // Obtener mapa Driver -> Constructor desde results
-        Map<String, String> driverConstructorMap = driver.getDriverConstructorMap();
-
-        List<Driver__c> driversToUpdate = new List<Driver__c>();
-        List<driverstanding__c> driverstandingToInsert = new List<driverstanding__c>();  // ← AGREGAR ESTA LÍNEA
+        // 1. PRIMERO: Crear driverstanding__c
+        List<driverstanding__c> driverstandingToInsert = new List<driverstanding__c>();
 
         for (Map<String, Object> s : standingsData) {
-            String driverId = normalize((String) s.get('driverId'));
-            Integer wins = toInteger(s.get('wins'));
-            Integer points = toInteger(s.get('points'));
-
-            // ========== ACTUALIZAR Driver__c ==========
-            Driver__c drv = new Driver__c();
-            drv.driverId__c = driverId;
-            drv.Wins__c = wins;
-            drv.Total_Points__c = points;
-            drv.Value__c = calculateDriverValue(points, wins);
-
-            // Buscar Constructor
-            String constructorId = (String) s.get('constructorId');
-            if (String.isBlank(constructorId)) {
-                constructorId = driverConstructorMap.get((String) s.get('driverId'));
-            }
-        
-            if (String.isNotBlank(constructorId) && constructorMap.containsKey(normalize(constructorId))) {
-                drv.Constructor__c = constructorMap.get(normalize(constructorId));
-            }
-
-            driversToUpdate.add(drv);
-
-            // ========== CREAR REGISTRO EN driverstanding__c ========== (AGREGAR ESTE BLOQUE)
             driverstanding__c standing = new driverstanding__c();
             standing.Name = (String) s.get('givenName') + ' ' + (String) s.get('familyName');
             standing.driverId__c = (String) s.get('driverId');
@@ -342,7 +298,6 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
             standing.points__c = toInteger(s.get('points'));
             standing.wins__c = toInteger(s.get('wins'));
         
-            // Fecha de nacimiento
             Object dob = s.get('dateOfBirth');
             if (dob != null) {
                 try {
@@ -353,22 +308,66 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
             }
         
             driverstandingToInsert.add(standing);
-            // ========== FIN BLOQUE NUEVO ==========
+        }
+
+        // 2. Upsert driverstanding__c
+        if (!driverstandingToInsert.isEmpty()) {
+            Database.UpsertResult[] results = Database.upsert(driverstandingToInsert, driverstanding__c.Fields.driverId__c, false);
+            logResults('Driver Standing Records', results);
+        }
+
+        // 3. Obtener mapa de standing IDs
+        Map<String, Id> standingMap = new Map<String, Id>();
+        for (driverstanding__c ds : [SELECT Id, driverId__c FROM driverstanding__c WHERE driverId__c != null]) {
+            standingMap.put(normalize(ds.driverId__c), ds.Id);
+        }
+
+        // 4. Obtener mapa de Constructor IDs
+        Map<String, Id> constructorMap = getConstructorMap();
+    
+        // 5. Obtener mapa Driver -> Constructor desde results
+        Map<String, String> driverConstructorMap = driver.getDriverConstructorMap();
+
+        // 6. Actualizar Driver__c con Wins, Points, Value, Constructor Y Lookup a Standing
+        List<Driver__c> driversToUpdate = new List<Driver__c>();
+
+        for (Map<String, Object> s : standingsData) {
+            String driverId = normalize((String) s.get('driverId'));
+            Integer wins = toInteger(s.get('wins'));
+            Integer points = toInteger(s.get('points'));
+
+            Driver__c drv = new Driver__c();
+            drv.driverId__c = driverId;
+            drv.Wins__c = wins;
+            drv.Total_Points__c = points;
+            drv.Value__c = calculateDriverValue(points, wins);
+
+            // Asignar Constructor Lookup
+            String constructorId = (String) s.get('constructorId');
+            if (String.isBlank(constructorId)) {
+                constructorId = driverConstructorMap.get((String) s.get('driverId'));
+            }
+        
+            if (String.isNotBlank(constructorId) && constructorMap.containsKey(normalize(constructorId))) {
+                drv.constructor__c = constructorMap.get(normalize(constructorId));
+            }
+                      
+            // Asignar Lookup a Driver Standing
+            if (standingMap.containsKey(driverId)) {
+                drv.Driver_standing__c = standingMap.get(driverId);
+            }
+
+            
+            driversToUpdate.add(drv);
         
             System.debug(s.get('givenName') + ' ' + s.get('familyName') +
                 ' | Wins: ' + wins + ' | Points: ' + points + ' | Value: $' + drv.Value__c + 'M');
         }
 
-        // Upsert Driver__c
+        // 7. Upsert Driver__c
         if (!driversToUpdate.isEmpty()) {
             Database.UpsertResult[] results = Database.upsert(driversToUpdate, Driver__c.Fields.driverId__c, false);
             logResults('Drivers', results);
-        }
-
-        // Upsert driverstanding__c (AGREGAR ESTE BLOQUE)
-        if (!driverstandingToInsert.isEmpty()) {
-            Database.UpsertResult[] results = Database.upsert(driverstandingToInsert, driverstanding__c.Fields.driverId__c, false);
-            logResults('Driver Standing Records', results);
         }
     }
 
@@ -485,7 +484,7 @@ public class F1DataQueueable implements Queueable, Database.AllowsCallouts {
 
     private Map<String, Id> getConstructorMap() {
         Map<String, Id> constructorMap = new Map<String, Id>();
-        for (Constructor__c c : [SELECT Id, constructorId__c FROM Constructor__c WHERE constructorId__c != null]) {
+        for (constructor__c c : [SELECT Id, constructorId__c FROM constructor__c WHERE constructorId__c != null]) {
             constructorMap.put(normalize(c.constructorId__c), c.Id);
         }
         return constructorMap;
